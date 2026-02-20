@@ -1359,7 +1359,7 @@ try{
   for(var i=0;i<DATA.length;i++){
     var d = DATA[i];
     var cs = d.crockett_share;
-    var radius = 4 + (d.dem_total/maxD)*18;
+    var radius = 1 + (d.dem_total/maxD)*6;
     var m = (cs*2 - 1);
     var fillColor = _colorByMargin(m);
     var strokeColor = _darken(fillColor, 0.65);
@@ -1367,7 +1367,7 @@ try{
 
     var marker = L.circleMarker([d.lat, d.lon], {
       radius: radius, fillColor: fillColor, fillOpacity: _opacityByMargin(m),
-      color: strokeColor, weight: 0.2
+      color: strokeColor, weight: 1
     }).addTo(map);
 
     var ttHtml = _tooltipHTML(d);
