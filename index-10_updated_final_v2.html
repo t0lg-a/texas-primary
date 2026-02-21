@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Democratic Primary — Crockett vs Talarico</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--surface:#f6f7f8;--border:#dfe1e5;--border-light:#eceef1;
+  --txt:#1a1a1a;--txt2:#555;--txt3:#888;
+  --crockett:#c45a20;--crockett-bg:#fdf0e8;--crockett-bar:#d4712e;
+  --talarico:#1a7a5c;--talarico-bg:#e6f5f0;--talarico-bar:#239e76;
+}
+html{font-size:15px}
+body{font-family:'Libre Franklin',sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
+.topbar{background:#1a1a1a;color:#fff;padding:6px 24px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.topbar span{color:#aaa;font-weight:400}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+.header{padding-top:28px}
+.header .kicker{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:var(--crockett);margin-bottom:6px}
+.header h1{font-family:'Source Serif 4',Georgia,serif;font-size:32px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.header .dek{font-size:15px;color:var(--txt2);max-width:700px;line-height:1.5;margin-bottom:4px}
+.header .timestamp{font-size:12px;color:var(--txt3);margin-bottom:20px}
+
+/* ── RESULTS BANNER ── */
+.rb{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.rb-header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border-light);background:var(--surface)}
+.rb-header h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.rb-header .rpt{font-size:12px;color:var(--txt3)}
+.rb-header .rpt b{color:var(--txt)}
+.total-bar{display:flex;height:8px}
+.total-bar .seg-c{background:var(--crockett-bar)}
+.total-bar .seg-t{background:var(--talarico-bar)}
+.cand-row{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border-light)}
+.cand-row:last-child{border-bottom:none}
+.cand-row.winner{background:var(--talarico-bg)}
+.cand-check{width:24px;flex-shrink:0;font-size:16px}
+.cand-info{flex:1;min-width:0}
+.cand-name{font-size:16px;font-weight:700}
+.cand-bar-wrap{flex:0 0 340px;margin:0 20px}
+.cand-bar{height:20px;border-radius:3px}
+.cand-nums{flex:0 0 130px;text-align:right}
+.cand-pct{font-size:22px;font-weight:800}
+.cand-votes{font-size:12px;color:var(--txt3)}
+
+/* ── COUNTY BREAKDOWN ── */
+.county-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.county-card{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.cc-head{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border-light);font-size:13px;font-weight:700;display:flex;justify-content:space-between}
+.cc-head .cv{font-weight:400;color:var(--txt3);font-size:11px}
+.cc-bar{display:flex;height:6px}
+.cc-bar .seg-c{background:var(--crockett-bar)}
+.cc-bar .seg-t{background:var(--talarico-bar)}
+.cc-row{display:flex;justify-content:space-between;padding:8px 16px;font-size:13px}
+.cc-row .nm{font-weight:600}
+.cc-row .pv{font-variant-numeric:tabular-nums}
+.cc-row.c-row .nm{color:var(--crockett)}
+.cc-row.t-row .nm{color:var(--talarico)}
+
+/* ── MAP + TABLE LAYOUT ── */
+.main{display:flex;gap:24px;margin-bottom:20px}
+.col-map{flex:1;min-width:0}
+.col-table{flex:0 0 460px}
+#map,#mapFinal{height:520px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+
+/* ── TOP GRID: MAP + COUNTY LIST ── */
+.top-grid{display:grid;grid-template-columns:1fr 520px;gap:24px;margin-bottom:20px;align-items:start}
+.top-grid #countyTblWrap{margin:0}
+.bottom-vc{margin-bottom:20px}
+@media(max-width:1100px){.top-grid{grid-template-columns:1fr}}
+
+/* ── TABLE ── */
+.tbl-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.tbl-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);gap:8px}
+.tbl-head h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.tbl-controls{display:flex;gap:6px;align-items:center}
+.search{padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:inherit;outline:none;width:140px}
+.search:focus{border-color:var(--talarico)}
+select.county-filter{padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:inherit;outline:none;background:#fff}
+.tbl-scroll{max-height:448px;overflow-y:auto}
+.tbl-scroll::-webkit-scrollbar{width:4px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead{position:sticky;top:0;z-index:5}
+th{padding:7px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt3);background:var(--surface);border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--txt)}
+th.sa::after{content:' ▲';font-size:7px}
+th.sd::after{content:' ▼';font-size:7px}
+tbody tr{border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .1s}
+tbody tr:hover{background:#f0f7f4}
+tbody tr.active{background:#e6f5f0}
+td{padding:6px 8px;white-space:nowrap}
+.loc-name{max-width:130px;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.county-tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;color:#fff}
+.tag-Dallas{background:#6366f1}
+.tag-Harris{background:#0891b2}
+.tag-Travis{background:#7c3aed}
+.num{font-variant-numeric:tabular-nums;font-weight:600}
+.c-num{color:var(--crockett)}
+.t-num{color:var(--talarico)}
+.mini-bar{width:80px}
+.mb-wrap{display:flex;height:8px;border-radius:2px;overflow:hidden;background:#eee}
+.mb-c{background:var(--crockett-bar)}
+.mb-t{background:var(--talarico-bar)}
+.lead{font-weight:700;font-size:10px}
+
+/* ── MAP ELEMENTS ── */
+.custom-tooltip{
+  background:#fff!important;border:1px solid #dfe1e5!important;border-radius:6px!important;
+  padding:10px 14px!important;font-family:'Libre Franklin',sans-serif!important;
+  color:#1a1a1a!important;font-size:12px!important;
+  box-shadow:0 4px 16px rgba(0,0,0,.1)!important;min-width:210px!important;
+}
+.tt-name{font-weight:700;font-size:13px;margin-bottom:1px}
+.tt-sub{font-size:10px;color:#888;margin-bottom:6px}
+.tt-row{display:flex;justify-content:space-between;gap:14px;margin:2px 0}
+.tt-bar{height:6px;border-radius:2px;margin:5px 0;display:flex;overflow:hidden;background:#eee}
+.tt-bar-c{background:#d4712e}
+.tt-bar-t{background:#239e76}
+.tt-demo{margin-top:5px;padding-top:5px;border-top:1px solid #eceef1;font-size:10px;color:#888}
+.map-legend{
+  position:absolute;bottom:12px;left:12px;z-index:800;
+  background:rgba(255,255,255,.95);border:1px solid #dfe1e5;border-radius:6px;
+  padding:10px 14px;font-size:10px;color:#888;
+}
+.map-legend h4{font-size:11px;color:#1a1a1a;margin-bottom:4px;font-weight:700}
+.lg-row{display:flex;align-items:center;gap:6px;margin:3px 0}
+.lg-circ{border-radius:50%;flex-shrink:0}
+
+.footer{margin:16px 0 40px;font-size:11px;color:var(--txt3);line-height:1.6}
+.footer strong{color:var(--txt2)}
+
+@media(max-width:900px){
+  .main{flex-direction:column}
+  .col-table{flex:none;width:100%}
+  .county-grid{grid-template-columns:1fr}
+  .cand-bar-wrap{flex:0 0 160px}
+}
+
+
+/* ── FIXED RACE SLIDERS ── */
+.controls{
+  position:fixed; bottom:18px; right:18px; top:auto; z-index:1200;
+  width:270px; background:rgba(255,255,255,.96);
+  max-height:calc(100vh - 36px); overflow:auto;
+  border:1px solid var(--border); border-radius:10px;
+  box-shadow:0 6px 24px rgba(0,0,0,.12);
+  padding:10px 12px;
+}
+.ctrl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ctrl-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2)}
+.ctrl-btn{border:1px solid var(--border);background:#fff;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer}
+.ctrl-btn:hover{border-color:var(--txt3)}
+.ctrl-row{margin:8px 0}
+.ctrl-row label{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--txt2);margin-bottom:4px}
+.ctrl-row .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--txt)}
+.ctrl-row input[type="range"]{width:100%}
+.ctrl-note{margin-top:8px;font-size:10px;color:var(--txt3);line-height:1.35}
+.ctrl-sep{height:1px;background:var(--border-light);margin:10px 0}
+
+/* Winner highlight (dynamic) */
+.cand-row.winner-c{background:var(--crockett-bg)}
+.cand-row.winner-t{background:var(--talarico-bg)}
+
+@media(max-width:900px){
+  .controls{position:static;width:100%;margin:0 0 14px;box-shadow:none}
+}
+
+
+/* ── County demographic model ── */
+#countyTblWrap{margin:0}
+.cstat{font-size:11px;color:var(--txt3);white-space:nowrap}
+.turnout-box{border-top:1px solid var(--border);background:var(--surface);padding:10px 14px}
+.turnout-box summary{cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.2px;color:var(--txt2)}
+.turnout-sub{font-size:11px;color:var(--txt3);margin:8px 0}
+.turnout-ta{width:100%;min-height:120px;max-height:320px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:11px;line-height:1.35;padding:8px;border:1px solid var(--border);border-radius:6px;outline:none;background:#fff}
+.turnout-ta:focus{border-color:var(--talarico)}
+.turnout-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+.turnout-meta{font-size:11px;color:var(--txt3)}
+/* make county table columns fit */
+.county-tbl th,.county-tbl td{white-space:nowrap}
+.county-tbl td:first-child{font-weight:700}
+.county-src{font-size:10px;color:var(--txt3);font-weight:600;margin-left:6px}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">2026 Primary Elections <span>· Early Voting · Democratic Party</span></div>
+
+<div class="wrap">
+<div class="header">
+  <div class="kicker">Democratic Primary — U.S. Senate</div>
+  <h1>Crockett vs. Talarico — All-Counties Model</h1>
+  <div class="dek">Projected early voting results for Dallas, Harris, and Travis counties using precinct-level racial demographics and group voting patterns.</div>
+  <div class="timestamp">Early voting through Feb. 18, 2026 · 67,741 Democratic ballots modeled</div>
+</div>
+
+
+<!-- ── FIXED RACE VOTE SLIDERS ── -->
+<div class="controls" id="raceControls" aria-label="Race vote assumptions">
+  <div class="ctrl-head">
+    <div class="ctrl-title">Vote assumptions</div>
+    <button class="ctrl-btn" id="resetRace" type="button">Reset</button>
+  </div>
+
+  <div class="ctrl-row">
+    <label for="slBlack"><span>Black → Crockett</span><span class="val"><span id="vBlack">80</span>%</span></label>
+    <input id="slBlack" type="range" min="0" max="100" step="1" value="80">
+  </div>
+
+  <div class="ctrl-row">
+    <label for="slWhite"><span>White → Crockett</span><span class="val"><span id="vWhite">35</span>%</span></label>
+    <input id="slWhite" type="range" min="0" max="100" step="1" value="35">
+  </div>
+
+  <div class="ctrl-row">
+    <label for="slHisp"><span>Hispanic → Crockett</span><span class="val"><span id="vHisp">35</span>%</span></label>
+    <input id="slHisp" type="range" min="0" max="100" step="1" value="35">
+  </div>
+
+  <div class="ctrl-row">
+    <label for="slAsian"><span>Asian → Crockett</span><span class="val"><span id="vAsian">25</span>%</span></label>
+    <input id="slAsian" type="range" min="0" max="100" step="1" value="25">
+  </div>
+
+  <div class="ctrl-note">Talarico share is 100−slider. Remainder (“Other”) assumed 50/50.</div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-head" style="margin-bottom:6px">
+    <div class="ctrl-title">Electorate (statewide)</div>
+    <button class="ctrl-btn" id="resetElec" type="button">Reset</button>
+  </div>
+  <div class="ctrl-row">
+    <label for="slEWhite"><span>White share</span><span class="val"><span id="vEWhite">45</span>%</span></label>
+    <input id="slEWhite" type="range" min="0" max="100" step="1" value="45">
+  </div>
+  <div class="ctrl-row">
+    <label for="slEBlack"><span>Black share</span><span class="val"><span id="vEBlack">21</span>%</span></label>
+    <input id="slEBlack" type="range" min="0" max="100" step="1" value="21">
+  </div>
+  <div class="ctrl-row">
+    <label for="slEHisp"><span>Hispanic share</span><span class="val"><span id="vEHisp">26</span>%</span></label>
+    <input id="slEHisp" type="range" min="0" max="100" step="1" value="26">
+  </div>
+  <div class="ctrl-row">
+    <label for="slEAsian"><span>Asian share</span><span class="val"><span id="vEAsian">4</span>%</span></label>
+    <input id="slEAsian" type="range" min="0" max="100" step="1" value="4">
+  </div>
+  <div class="ctrl-row">
+    <label><span>Other share</span><span class="val"><span id="vEOther">4</span>%</span></label>
+  </div>
+  <div class="ctrl-note">Sliders are the assumed <b>statewide Democratic primary electorate</b> by race. Weights are solved to match these targets (then normalized within each county/tract).</div>
+
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-head" style="margin-bottom:6px">
+    <div class="ctrl-title">FINAL ESTIMATE ASSUMPTIONS</div>
+  </div>
+  <div class="ctrl-row">
+    <label for="finalElectorate"><span>Total electorate (statewide)</span><span class="val"><span id="vFinalElectN">7.2</span>m</span></label>
+    <input id="finalElectorate" type="number" class="search" min="0" step="1000" value="7200000" style="width:140px" title="Total electorate (statewide)">
+  </div>
+
+  <div class="ctrl-row">
+    <label for="slTWhite"><span>White turnout</span><span class="val"><span id="vTWhite">18.1</span>%</span></label>
+    <input id="slTWhite" type="range" min="0" max="100" step="0.1" value="18.1">
+  </div>
+  <div class="ctrl-row">
+    <label for="slTBlack"><span>Black turnout</span><span class="val"><span id="vTBlack">21.1</span>%</span></label>
+    <input id="slTBlack" type="range" min="0" max="100" step="0.1" value="21.1">
+  </div>
+  <div class="ctrl-row">
+    <label for="slTHisp"><span>Hispanic turnout</span><span class="val"><span id="vTHisp">23.8</span>%</span></label>
+    <input id="slTHisp" type="range" min="0" max="100" step="0.1" value="23.8">
+  </div>
+  <div class="ctrl-row">
+    <label for="slTAsian"><span>Asian turnout</span><span class="val"><span id="vTAsian">17.8</span>%</span></label>
+    <input id="slTAsian" type="range" min="0" max="100" step="0.1" value="17.8">
+  </div>
+  <div class="ctrl-row">
+    <label for="slTOther"><span>Other turnout</span><span class="val"><span id="vTOther">19.2</span>%</span></label>
+    <input id="slTOther" type="range" min="0" max="100" step="0.1" value="19.2">
+  </div>
+
+</div>
+
+
+<!-- ── OVERALL BANNER ── -->
+<div class="rb">
+  <div class="rb-header">
+    
+    <h2 id="totTitle">All-Counties Total</h2>
+    <div class="rpt"><span id="totScope">All counties with turnout</span> · <b id="totVotesLabel">—</b> Dem votes</div>
+  
+  </div>
+  <div class="total-bar">
+    <div class="seg-c" id="totSegC" style="width:45.3%"></div>
+    <div class="seg-t" id="totSegT" style="width:54.7%"></div>
+  </div>
+  <div class="cand-row" id="rowC">
+    <div class="cand-check" id="chkC"></div>
+    <div class="cand-info"><div class="cand-name">Jasmine Crockett</div></div>
+    <div class="cand-bar-wrap"><div class="cand-bar" id="totCBar" style="width:45.3%;background:var(--crockett-bar)"></div></div>
+    <div class="cand-nums">
+      <div class="cand-pct" id="totCPct" style="color:var(--crockett)">45.3%</div>
+      <div class="cand-votes" id="totCVotes">30,692 votes</div>
+    </div>
+  </div>
+  <div class="cand-row winner-t" id="rowT">
+    <div class="cand-check" id="chkT">✓</div>
+    <div class="cand-info"><div class="cand-name">James Talarico</div></div>
+    <div class="cand-bar-wrap"><div class="cand-bar" id="totTBar" style="width:54.7%;background:var(--talarico-bar)"></div></div>
+    <div class="cand-nums">
+      <div class="cand-pct" id="totTPct" style="color:var(--talarico)">54.7%</div>
+      <div class="cand-votes" id="totTVotes">37,049 votes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COUNTY CARDS ── -->
+<div class="county-grid">
+  <div class="county-card">
+    <div class="cc-head">Dallas County <span class="cv">25,681 votes</span></div>
+    <div class="cc-bar"><div class="seg-c" id="dSegC" style="width:50.5%"></div><div class="seg-t" id="dSegT" style="width:49.5%"></div></div>
+    <div class="cc-row c-row"><span class="nm">Crockett</span><span class="pv" id="dCText">12,961 (50.5%)</span></div>
+    <div class="cc-row t-row"><span class="nm">Talarico</span><span class="pv" id="dTText">12,720 (49.5%)</span></div>
+  </div>
+  <div class="county-card">
+    <div class="cc-head">Harris County <span class="cv">25,704 votes</span></div>
+    <div class="cc-bar"><div class="seg-c" id="hSegC" style="width:44.6%"></div><div class="seg-t" id="hSegT" style="width:55.4%"></div></div>
+    <div class="cc-row c-row"><span class="nm">Crockett</span><span class="pv" id="hCText">11,463 (44.6%)</span></div>
+    <div class="cc-row t-row"><span class="nm">Talarico</span><span class="pv" id="hTText">14,241 (55.4%)</span></div>
+  </div>
+  <div class="county-card">
+    <div class="cc-head">Travis County <span class="cv">16,356 votes</span></div>
+    <div class="cc-bar"><div class="seg-c" id="tSegC" style="width:38.3%"></div><div class="seg-t" id="tSegT" style="width:61.7%"></div></div>
+    <div class="cc-row c-row"><span class="nm">Crockett</span><span class="pv" id="tCText">6,268 (38.3%)</span></div>
+    <div class="cc-row t-row"><span class="nm">Talarico</span><span class="pv" id="tTText">10,088 (61.7%)</span></div>
+  </div>
+</div>
+
+
+<!-- ── MAP + COUNTY LIST ── -->
+<div class="top-grid">
+  <div class="col-map"><div id="map"></div></div>
+  <div class="tbl-wrap" id="countyTblWrap">
+  <div class="tbl-head">
+    <h3>By County</h3>
+    <div class="tbl-controls">
+      <input type="text" class="search" placeholder="Filter counties…" id="countySearch">
+      <button class="ctrl-btn" id="parseTurnoutBtn" type="button">Parse turnout</button>
+      <span class="cstat" id="countyModelStatus">Loading demographics…</span>
+    </div>
+  </div>
+
+  <details class="turnout-box" id="turnoutBox">
+    <summary>Turnout input (editable)</summary>
+    <div class="turnout-sub">Paste the county turnout table you copied. This model reads “Registered Voters”, “Cumulative In-Person and Mail Voters”, and “Cumulative Percent Early Voting”.</div>
+    <textarea id="turnoutRaw" class="turnout-ta" spellcheck="false"></textarea>
+    <div class="turnout-actions">
+      <button class="ctrl-btn" id="turnoutResetBtn" type="button">Reset</button>
+      <span class="turnout-meta">Parsed: <span id="turnoutParsedCount">0</span> · Matched demographics: <span id="demoMatchedCount">0</span></span>
+    </div>
+  </details>
+
+  <div class="tbl-scroll" style="max-height:520px">
+    <table class="county-tbl">
+      <thead><tr>
+        <th data-ccol="county">County</th>
+        <th class="num" data-ccol="reg">Registered</th>
+        <th class="num" data-ccol="early">Early</th>
+        <th class="num" data-ccol="earlyPct">Early%</th>
+        <th class="num c-num" data-ccol="cPct">C%</th>
+        <th class="num c-num" data-ccol="cVotes">C votes</th>
+        <th class="num t-num" data-ccol="tVotes">T votes</th>
+        <th data-ccol="bar">Split</th>
+      </tr></thead>
+      <tbody id="ctb"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ── VOTE CENTERS (DEFAULT OPEN) ── -->
+<div class="bottom-vc">
+  <div class="tbl-wrap" id="voteCenterWrap">
+      <div class="tbl-head">
+        <h3>By Vote Center</h3>
+        <div class="tbl-controls">
+          <select class="county-filter" id="cfilt">
+            <option value="">All Counties</option>
+            <option value="Dallas">Dallas</option>
+            <option value="Harris">Harris</option>
+            <option value="Travis">Travis</option>
+          </select>
+          <input type="text" class="search" placeholder="Search…" id="sbox">
+        </div>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th data-col="county" style="width:50px">Co.</th>
+            <th data-col="name">Location</th>
+            <th data-col="crockett">Crock.</th>
+            <th data-col="talarico">Talar.</th>
+            <th data-col="margin">Lead</th>
+            <th data-col="bar">Split</th>
+          </tr></thead>
+          <tbody id="tb"></tbody>
+        </table>
+      </div>
+    </div>
+
+</div>
+
+
+<div class="rb" id="finalRb" style="margin-top:14px">
+  <div class="rb-header">
+    <h2>Statewide final estimate</h2>
+    <div class="rpt"><span id="finalScope">Allocated by county registered voters</span> · <b id="finalVotesLabel">—</b> projected votes</div>
+  </div>
+  <div class="total-bar">
+    <div class="seg-c" id="finalSegC" style="width:50%"></div>
+    <div class="seg-t" id="finalSegT" style="width:50%"></div>
+  </div>
+  <div class="cand-row" id="finalRowC">
+    <div class="cand-check" id="finalChkC"></div>
+    <div class="cand-info"><div class="cand-name">Jasmine Crockett</div></div>
+    <div class="cand-bar-wrap"><div class="cand-bar" id="finalCBar" style="width:50%;background:var(--crockett-bar)"></div></div>
+    <div class="cand-nums">
+      <div class="cand-pct" id="finalCPct" style="color:var(--crockett)">—</div>
+      <div class="cand-votes" id="finalCVotes">—</div>
+    </div>
+  </div>
+  <div class="cand-row" id="finalRowT">
+    <div class="cand-check" id="finalChkT"></div>
+    <div class="cand-info"><div class="cand-name">James Talarico</div></div>
+    <div class="cand-bar-wrap"><div class="cand-bar" id="finalTBar" style="width:50%;background:var(--talarico-bar)"></div></div>
+    <div class="cand-nums">
+      <div class="cand-pct" id="finalTPct" style="color:var(--talarico)">—</div>
+      <div class="cand-votes" id="finalTVotes">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="top-grid" id="finalGrid" style="margin-top:14px">
+  <div class="col-map">
+    <div id="mapFinal"></div>
+  </div>
+
+  <div class="tbl-wrap" id="finalCountyTblWrap">
+    <div class="tbl-head">
+      <h3>Final by County</h3>
+      <div class="tbl-controls">
+        <input type="text" class="search" placeholder="Filter counties…" id="finalCountySearch">
+      </div>
+    </div>
+    <div class="tbl-scroll" style="max-height:520px">
+      <table class="county-tbl">
+        <thead><tr>
+          <th data-fcol="county">County</th>
+          <th class="num" data-fcol="elect">Electorate</th>
+          <th class="num" data-fcol="votes">Votes</th>
+          <th class="num" data-fcol="turnout">Turnout%</th>
+          <th class="num c-num" data-fcol="cPct">C%</th>
+          <th class="num c-num" data-fcol="cVotes">C votes</th>
+          <th class="num t-num" data-fcol="tVotes">T votes</th>
+          <th class="mini-bar" data-fcol="bar">Split</th>
+        </tr></thead>
+        <tbody id="ftb"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>Model assumptions:</strong> <span id="assumpTxt">Black voters 80/20 Crockett · White voters 35/65 Talarico · Hispanic voters 35/65 Talarico · Asian voters 25/75 Talarico</span>. Demographics from 2020 Census P2 (county-level) and tract approximations (vote-center layer), reweighted to match the electorate sliders (statewide; normalized). Vote-center layer uses Dallas/Harris/Travis vote centers; county layer covers all counties with turnout + Census. <em>This is a demographic model, not certified results.</em>
+</div>
+</div>
+
+<script>
+var DATA = [{"county": "Dallas", "name": "A E Sims Cedar Hill Rec Center", "dem_total": 1224, "lat": 32.588, "lon": -96.953, "pct_black": 0.55, "pct_white": 0.2, "pct_hispanic": 0.18, "pct_asian": 0.02, "crockett_share": 0.603, "talarico_share": 0.397, "crockett_votes": 481, "talarico_votes": 317}, {"county": "Dallas", "name": "Balch Springs Recreation Center", "dem_total": 384, "lat": 32.719, "lon": -96.625, "pct_black": 0.35, "pct_white": 0.1, "pct_hispanic": 0.5, "pct_asian": 0.02, "crockett_share": 0.51, "talarico_share": 0.49, "crockett_votes": 136, "talarico_votes": 130}, {"county": "Dallas", "name": "Disciple Central Comm Church", "dem_total": 2494, "lat": 32.667, "lon": -96.805, "pct_black": 0.8, "pct_white": 0.03, "pct_hispanic": 0.14, "pct_asian": 0.01, "crockett_share": 0.712, "talarico_share": 0.288, "crockett_votes": 1166, "talarico_votes": 471}, {"county": "Dallas", "name": "Friendship West Baptist Church", "dem_total": 1447, "lat": 32.63, "lon": -96.853, "pct_black": 0.85, "pct_white": 0.03, "pct_hispanic": 0.08, "pct_asian": 0.01, "crockett_share": 0.736, "talarico_share": 0.264, "crockett_votes": 722, "talarico_votes": 259}, {"county": "Dallas", "name": "Highland Hills Library", "dem_total": 503, "lat": 32.67, "lon": -96.824, "pct_black": 0.82, "pct_white": 0.02, "pct_hispanic": 0.13, "pct_asian": 0.01, "crockett_share": 0.721, "talarico_share": 0.279, "crockett_votes": 239, "talarico_votes": 92}, {"county": "Dallas", "name": "Paul L Dunbar Library", "dem_total": 741, "lat": 32.751, "lon": -96.811, "pct_black": 0.78, "pct_white": 0.05, "pct_hispanic": 0.13, "pct_asian": 0.01, "crockett_share": 0.705, "talarico_share": 0.295, "crockett_votes": 352, "talarico_votes": 148}, {"county": "Dallas", "name": "For Oak Cliff", "dem_total": 301, "lat": 32.738, "lon": -96.836, "pct_black": 0.6, "pct_white": 0.04, "pct_hispanic": 0.32, "pct_asian": 0.01, "crockett_share": 0.623, "talarico_share": 0.377, "crockett_votes": 123, "talarico_votes": 74}, {"county": "Dallas", "name": "Oak Cliff Government Center", "dem_total": 723, "lat": 32.742, "lon": -96.854, "pct_black": 0.45, "pct_white": 0.06, "pct_hispanic": 0.44, "pct_asian": 0.02, "crockett_share": 0.555, "talarico_share": 0.445, "crockett_votes": 273, "talarico_votes": 218}, {"county": "Dallas", "name": "Kiest Recreation Center", "dem_total": 378, "lat": 32.71, "lon": -96.848, "pct_black": 0.55, "pct_white": 0.05, "pct_hispanic": 0.35, "pct_asian": 0.01, "crockett_share": 0.603, "talarico_share": 0.397, "crockett_votes": 157, "talarico_votes": 104}, {"county": "Dallas", "name": "Martin Weiss Recreation Center", "dem_total": 509, "lat": 32.721, "lon": -96.827, "pct_black": 0.4, "pct_white": 0.08, "pct_hispanic": 0.47, "pct_asian": 0.02, "crockett_share": 0.533, "talarico_share": 0.467, "crockett_votes": 184, "talarico_votes": 162}, {"county": "Dallas", "name": "MLK Jr Branch Library", "dem_total": 651, "lat": 32.754, "lon": -96.768, "pct_black": 0.75, "pct_white": 0.04, "pct_hispanic": 0.17, "pct_asian": 0.01, "crockett_share": 0.691, "talarico_share": 0.309, "crockett_votes": 321, "talarico_votes": 143}, {"county": "Dallas", "name": "Skyline Branch Library", "dem_total": 754, "lat": 32.726, "lon": -96.732, "pct_black": 0.45, "pct_white": 0.05, "pct_hispanic": 0.45, "pct_asian": 0.02, "crockett_share": 0.555, "talarico_share": 0.445, "crockett_votes": 280, "talarico_votes": 224}, {"county": "Dallas", "name": "Dallas College-Pleasant Grove", "dem_total": 770, "lat": 32.723, "lon": -96.695, "pct_black": 0.4, "pct_white": 0.06, "pct_hispanic": 0.48, "pct_asian": 0.02, "crockett_share": 0.534, "talarico_share": 0.466, "crockett_votes": 282, "talarico_votes": 246}, {"county": "Dallas", "name": "Dallas College-Mountain View", "dem_total": 224, "lat": 32.711, "lon": -96.886, "pct_black": 0.5, "pct_white": 0.05, "pct_hispanic": 0.4, "pct_asian": 0.02, "crockett_share": 0.578, "talarico_share": 0.422, "crockett_votes": 92, "talarico_votes": 67}, {"county": "Dallas", "name": "Dallas College-West Dallas Ctr", "dem_total": 522, "lat": 32.773, "lon": -96.864, "pct_black": 0.3, "pct_white": 0.05, "pct_hispanic": 0.6, "pct_asian": 0.02, "crockett_share": 0.487, "talarico_share": 0.512, "crockett_votes": 175, "talarico_votes": 184}, {"county": "Dallas", "name": "Frank Crowley Courts Building", "dem_total": 355, "lat": 32.769, "lon": -96.873, "pct_black": 0.4, "pct_white": 0.08, "pct_hispanic": 0.45, "pct_asian": 0.03, "crockett_share": 0.533, "talarico_share": 0.467, "crockett_votes": 148, "talarico_votes": 129}, {"county": "Dallas", "name": "Grauwyler Park Rec Center", "dem_total": 401, "lat": 32.803, "lon": -96.896, "pct_black": 0.25, "pct_white": 0.15, "pct_hispanic": 0.5, "pct_asian": 0.05, "crockett_share": 0.465, "talarico_share": 0.535, "crockett_votes": 124, "talarico_votes": 143}, {"county": "Dallas", "name": "Jaycee Zaragoza Rec Center", "dem_total": 58, "lat": 32.751, "lon": -96.853, "pct_black": 0.1, "pct_white": 0.05, "pct_hispanic": 0.8, "pct_asian": 0.02, "crockett_share": 0.397, "talarico_share": 0.603, "crockett_votes": 16, "talarico_votes": 23}, {"county": "Dallas", "name": "Singing Hills Rec Center", "dem_total": 71, "lat": 32.687, "lon": -96.76, "pct_black": 0.65, "pct_white": 0.03, "pct_hispanic": 0.28, "pct_asian": 0.01, "crockett_share": 0.646, "talarico_share": 0.354, "crockett_votes": 29, "talarico_votes": 16}, {"county": "Dallas", "name": "Oak Gardens Church", "dem_total": 228, "lat": 32.765, "lon": -96.755, "pct_black": 0.55, "pct_white": 0.05, "pct_hispanic": 0.35, "pct_asian": 0.02, "crockett_share": 0.6, "talarico_share": 0.4, "crockett_votes": 92, "talarico_votes": 61}, {"county": "Dallas", "name": "Mountain Creek Library", "dem_total": 490, "lat": 32.717, "lon": -96.938, "pct_black": 0.35, "pct_white": 0.12, "pct_hispanic": 0.45, "pct_asian": 0.04, "crockett_share": 0.509, "talarico_share": 0.491, "crockett_votes": 160, "talarico_votes": 155}, {"county": "Dallas", "name": "Lancaster Veterans Memorial Lib", "dem_total": 1127, "lat": 32.592, "lon": -96.756, "pct_black": 0.72, "pct_white": 0.08, "pct_hispanic": 0.15, "pct_asian": 0.02, "crockett_share": 0.676, "talarico_share": 0.324, "crockett_votes": 498, "talarico_votes": 238}, {"county": "Dallas", "name": "Duncanville Library", "dem_total": 1579, "lat": 32.652, "lon": -96.908, "pct_black": 0.55, "pct_white": 0.18, "pct_hispanic": 0.2, "pct_asian": 0.03, "crockett_share": 0.601, "talarico_share": 0.399, "crockett_votes": 640, "talarico_votes": 426}, {"county": "Dallas", "name": "Glenn Heights Family Center", "dem_total": 322, "lat": 32.548, "lon": -96.856, "pct_black": 0.6, "pct_white": 0.12, "pct_hispanic": 0.22, "pct_asian": 0.02, "crockett_share": 0.624, "talarico_share": 0.376, "crockett_votes": 127, "talarico_votes": 77}, {"county": "Dallas", "name": "Hutchins City Hall", "dem_total": 264, "lat": 32.65, "lon": -96.713, "pct_black": 0.5, "pct_white": 0.1, "pct_hispanic": 0.35, "pct_asian": 0.02, "crockett_share": 0.578, "talarico_share": 0.422, "crockett_votes": 37, "talarico_votes": 27}, {"county": "Dallas", "name": "Wilmer Community Center", "dem_total": 62, "lat": 32.591, "lon": -96.685, "pct_black": 0.4, "pct_white": 0.15, "pct_hispanic": 0.38, "pct_asian": 0.02, "crockett_share": 0.536, "talarico_share": 0.464, "crockett_votes": 21, "talarico_votes": 19}, {"county": "Dallas", "name": "Oak Lawn Branch Library", "dem_total": 1691, "lat": 32.806, "lon": -96.818, "pct_black": 0.1, "pct_white": 0.55, "pct_hispanic": 0.22, "pct_asian": 0.06, "crockett_share": 0.4, "talarico_share": 0.601, "crockett_votes": 458, "talarico_votes": 689}, {"county": "Dallas", "name": "Dallas County Records Bldg", "dem_total": 466, "lat": 32.781, "lon": -96.798, "pct_black": 0.35, "pct_white": 0.15, "pct_hispanic": 0.42, "pct_asian": 0.04, "crockett_share": 0.509, "talarico_share": 0.491, "crockett_votes": 150, "talarico_votes": 145}, {"county": "Dallas", "name": "Dallas College-R Jan LeCroy Ctr", "dem_total": 363, "lat": 32.818, "lon": -96.839, "pct_black": 0.2, "pct_white": 0.3, "pct_hispanic": 0.38, "pct_asian": 0.06, "crockett_share": 0.443, "talarico_share": 0.557, "crockett_votes": 107, "talarico_votes": 135}, {"county": "Dallas", "name": "Elections Training / Warehouse", "dem_total": 59, "lat": 32.772, "lon": -96.868, "pct_black": 0.25, "pct_white": 0.2, "pct_hispanic": 0.45, "pct_asian": 0.05, "crockett_share": 0.465, "talarico_share": 0.535, "crockett_votes": 18, "talarico_votes": 20}, {"county": "Dallas", "name": "Envision Dallas", "dem_total": 30, "lat": 32.812, "lon": -96.78, "pct_black": 0.2, "pct_white": 0.35, "pct_hispanic": 0.3, "pct_asian": 0.08, "crockett_share": 0.443, "talarico_share": 0.557, "crockett_votes": 10, "talarico_votes": 13}, {"county": "Dallas", "name": "Esperanza Comm Ctr at Dobie", "dem_total": 20, "lat": 32.697, "lon": -96.87, "pct_black": 0.2, "pct_white": 0.08, "pct_hispanic": 0.65, "pct_asian": 0.03, "crockett_share": 0.443, "talarico_share": 0.557, "crockett_votes": 7, "talarico_votes": 8}, {"county": "Dallas", "name": "Samuell Grand Rec Center", "dem_total": 954, "lat": 32.791, "lon": -96.726, "pct_black": 0.25, "pct_white": 0.2, "pct_hispanic": 0.45, "pct_asian": 0.05, "crockett_share": 0.465, "talarico_share": 0.535, "crockett_votes": 288, "talarico_votes": 332}, {"county": "Dallas", "name": "Harry Stone Rec Center", "dem_total": 403, "lat": 32.809, "lon": -96.716, "pct_black": 0.2, "pct_white": 0.22, "pct_hispanic": 0.48, "pct_asian": 0.05, "crockett_share": 0.443, "talarico_share": 0.557, "crockett_votes": 119, "talarico_votes": 151}, {"county": "Dallas", "name": "Lochwood Branch Library", "dem_total": 963, "lat": 32.836, "lon": -96.68, "pct_black": 0.15, "pct_white": 0.35, "pct_hispanic": 0.35, "pct_asian": 0.08, "crockett_share": 0.42, "talarico_share": 0.58, "crockett_votes": 281, "talarico_votes": 388}, {"county": "Dallas", "name": "Florence Recreation Center", "dem_total": 291, "lat": 32.766, "lon": -96.7, "pct_black": 0.18, "pct_white": 0.25, "pct_hispanic": 0.48, "pct_asian": 0.04, "crockett_share": 0.434, "talarico_share": 0.566, "crockett_votes": 75, "talarico_votes": 97}, {"county": "Dallas", "name": "Dallas College-Eastfield", "dem_total": 241, "lat": 32.756, "lon": -96.661, "pct_black": 0.3, "pct_white": 0.1, "pct_hispanic": 0.52, "pct_asian": 0.03, "crockett_share": 0.489, "talarico_share": 0.511, "crockett_votes": 81, "talarico_votes": 85}, {"county": "Dallas", "name": "St Paul's Church", "dem_total": 564, "lat": 32.837, "lon": -96.765, "pct_black": 0.2, "pct_white": 0.3, "pct_hispanic": 0.35, "pct_asian": 0.08, "crockett_share": 0.443, "talarico_share": 0.557, "crockett_votes": 165, "talarico_votes": 208}, {"county": "Dallas", "name": "Hamilton Park UMC", "dem_total": 197, "lat": 32.887, "lon": -96.753, "pct_black": 0.55, "pct_white": 0.15, "pct_hispanic": 0.18, "pct_asian": 0.08, "crockett_share": 0.596, "talarico_share": 0.404, "crockett_votes": 79, "talarico_votes": 54}, {"county": "Dallas", "name": "University Park UMC", "dem_total": 493, "lat": 32.838, "lon": -96.798, "pct_black": 0.02, "pct_white": 0.78, "pct_hispanic": 0.08, "pct_asian": 0.06, "crockett_share": 0.362, "talarico_share": 0.638, "crockett_votes": 119, "talarico_votes": 210}, {"county": "Dallas", "name": "Fretz Park Library", "dem_total": 1255, "lat": 32.903, "lon": -96.766, "pct_black": 0.08, "pct_white": 0.45, "pct_hispanic": 0.18, "pct_asian": 0.22, "crockett_share": 0.374, "talarico_share": 0.625, "crockett_votes": 303, "talarico_votes": 507}, {"county": "Dallas", "name": "Marsh Lane Baptist Church", "dem_total": 931, "lat": 32.89, "lon": -96.827, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.25, "pct_asian": 0.18, "crockett_share": 0.387, "talarico_share": 0.613, "crockett_votes": 231, "talarico_votes": 366}, {"county": "Dallas", "name": "Royal Lane Baptist Church", "dem_total": 690, "lat": 32.883, "lon": -96.798, "pct_black": 0.12, "pct_white": 0.42, "pct_hispanic": 0.22, "pct_asian": 0.16, "crockett_share": 0.4, "talarico_share": 0.6, "crockett_votes": 183, "talarico_votes": 274}, {"county": "Dallas", "name": "Northway Christian Church", "dem_total": 441, "lat": 32.877, "lon": -96.757, "pct_black": 0.08, "pct_white": 0.45, "pct_hispanic": 0.15, "pct_asian": 0.25, "crockett_share": 0.372, "talarico_share": 0.628, "crockett_votes": 103, "talarico_votes": 175}, {"county": "Dallas", "name": "Audelia Road Branch Library", "dem_total": 859, "lat": 32.912, "lon": -96.725, "pct_black": 0.12, "pct_white": 0.3, "pct_hispanic": 0.25, "pct_asian": 0.25, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 212, "talarico_votes": 329}, {"county": "Dallas", "name": "Makkah Masjid IDEA", "dem_total": 74, "lat": 32.854, "lon": -96.78, "pct_black": 0.15, "pct_white": 0.3, "pct_hispanic": 0.25, "pct_asian": 0.22, "crockett_share": 0.408, "talarico_share": 0.593, "crockett_votes": 20, "talarico_votes": 29}, {"county": "Dallas", "name": "Addison Town Hall", "dem_total": 317, "lat": 32.958, "lon": -96.83, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.25, "pct_asian": 0.18, "crockett_share": 0.387, "talarico_share": 0.613, "crockett_votes": 82, "talarico_votes": 130}, {"county": "Dallas", "name": "Dallas College-Brookhaven", "dem_total": 236, "lat": 32.921, "lon": -96.783, "pct_black": 0.2, "pct_white": 0.25, "pct_hispanic": 0.35, "pct_asian": 0.12, "crockett_share": 0.44, "talarico_share": 0.56, "crockett_votes": 76, "talarico_votes": 97}, {"county": "Dallas", "name": "Farmers Branch Manske Library", "dem_total": 335, "lat": 32.929, "lon": -96.875, "pct_black": 0.08, "pct_white": 0.32, "pct_hispanic": 0.4, "pct_asian": 0.12, "crockett_share": 0.386, "talarico_share": 0.614, "crockett_votes": 89, "talarico_votes": 141}, {"county": "Dallas", "name": "Islamic Assoc of North TX", "dem_total": 347, "lat": 32.937, "lon": -96.734, "pct_black": 0.12, "pct_white": 0.28, "pct_hispanic": 0.22, "pct_asian": 0.3, "crockett_share": 0.386, "talarico_share": 0.614, "crockett_votes": 83, "talarico_votes": 133}, {"county": "Dallas", "name": "Ministerios Charisma", "dem_total": 496, "lat": 32.932, "lon": -96.724, "pct_black": 0.1, "pct_white": 0.3, "pct_hispanic": 0.3, "pct_asian": 0.22, "crockett_share": 0.385, "talarico_share": 0.615, "crockett_votes": 129, "talarico_votes": 207}, {"county": "Dallas", "name": "Vietnamese Community Center", "dem_total": 165, "lat": 32.854, "lon": -96.818, "pct_black": 0.05, "pct_white": 0.25, "pct_hispanic": 0.15, "pct_asian": 0.48, "crockett_share": 0.335, "talarico_share": 0.665, "crockett_votes": 32, "talarico_votes": 63}, {"county": "Dallas", "name": "Dallas College-Garland Center", "dem_total": 778, "lat": 32.91, "lon": -96.625, "pct_black": 0.12, "pct_white": 0.35, "pct_hispanic": 0.35, "pct_asian": 0.12, "crockett_share": 0.401, "talarico_share": 0.599, "crockett_votes": 200, "talarico_votes": 299}, {"county": "Dallas", "name": "North Garland Branch Library", "dem_total": 534, "lat": 32.946, "lon": -96.638, "pct_black": 0.12, "pct_white": 0.3, "pct_hispanic": 0.3, "pct_asian": 0.2, "crockett_share": 0.396, "talarico_share": 0.604, "crockett_votes": 147, "talarico_votes": 223}, {"county": "Dallas", "name": "South Garland Branch Library", "dem_total": 955, "lat": 32.865, "lon": -96.617, "pct_black": 0.2, "pct_white": 0.28, "pct_hispanic": 0.35, "pct_asian": 0.1, "crockett_share": 0.441, "talarico_share": 0.559, "crockett_votes": 282, "talarico_votes": 358}, {"county": "Dallas", "name": "Rowlett Community Centre", "dem_total": 707, "lat": 32.905, "lon": -96.56, "pct_black": 0.12, "pct_white": 0.48, "pct_hispanic": 0.22, "pct_asian": 0.1, "crockett_share": 0.406, "talarico_share": 0.594, "crockett_votes": 191, "talarico_votes": 279}, {"county": "Dallas", "name": "Sachse City Hall", "dem_total": 264, "lat": 32.978, "lon": -96.595, "pct_black": 0.1, "pct_white": 0.5, "pct_hispanic": 0.18, "pct_asian": 0.15, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 66, "talarico_votes": 104}, {"county": "Dallas", "name": "Dallas County Mesquite Gov Ctr", "dem_total": 1070, "lat": 32.75, "lon": -96.6, "pct_black": 0.22, "pct_white": 0.25, "pct_hispanic": 0.4, "pct_asian": 0.06, "crockett_share": 0.454, "talarico_share": 0.546, "crockett_votes": 312, "talarico_votes": 376}, {"county": "Dallas", "name": "Sunnyvale Town Hall", "dem_total": 124, "lat": 32.797, "lon": -96.561, "pct_black": 0.08, "pct_white": 0.6, "pct_hispanic": 0.2, "pct_asian": 0.05, "crockett_share": 0.392, "talarico_share": 0.608, "crockett_votes": 35, "talarico_votes": 54}, {"county": "Dallas", "name": "Seagoville City Hall", "dem_total": 187, "lat": 32.639, "lon": -96.536, "pct_black": 0.15, "pct_white": 0.35, "pct_hispanic": 0.42, "pct_asian": 0.03, "crockett_share": 0.422, "talarico_share": 0.578, "crockett_votes": 45, "talarico_votes": 62}, {"county": "Dallas", "name": "Irving City Hall", "dem_total": 699, "lat": 32.814, "lon": -96.949, "pct_black": 0.12, "pct_white": 0.25, "pct_hispanic": 0.35, "pct_asian": 0.2, "crockett_share": 0.396, "talarico_share": 0.604, "crockett_votes": 178, "talarico_votes": 271}, {"county": "Dallas", "name": "Irving Arts Center", "dem_total": 209, "lat": 32.853, "lon": -96.946, "pct_black": 0.1, "pct_white": 0.28, "pct_hispanic": 0.3, "pct_asian": 0.24, "crockett_share": 0.383, "talarico_share": 0.617, "crockett_votes": 54, "talarico_votes": 88}, {"county": "Dallas", "name": "Islamic Center of Irving", "dem_total": 47, "lat": 32.833, "lon": -96.985, "pct_black": 0.15, "pct_white": 0.15, "pct_hispanic": 0.4, "pct_asian": 0.22, "crockett_share": 0.407, "talarico_share": 0.593, "crockett_votes": 12, "talarico_votes": 18}, {"county": "Dallas", "name": "Dallas College-North Lake", "dem_total": 215, "lat": 32.857, "lon": -97.037, "pct_black": 0.15, "pct_white": 0.2, "pct_hispanic": 0.45, "pct_asian": 0.12, "crockett_share": 0.417, "talarico_share": 0.583, "crockett_votes": 66, "talarico_votes": 92}, {"county": "Dallas", "name": "Betty Warmack Library", "dem_total": 738, "lat": 32.696, "lon": -96.999, "pct_black": 0.3, "pct_white": 0.15, "pct_hispanic": 0.42, "pct_asian": 0.06, "crockett_share": 0.489, "talarico_share": 0.51, "crockett_votes": 243, "talarico_votes": 254}, {"county": "Dallas", "name": "Our Redeemer Lutheran-GP", "dem_total": 271, "lat": 32.708, "lon": -96.973, "pct_black": 0.22, "pct_white": 0.18, "pct_hispanic": 0.48, "pct_asian": 0.05, "crockett_share": 0.455, "talarico_share": 0.545, "crockett_votes": 81, "talarico_votes": 98}, {"county": "Dallas", "name": "Crosswinds High School", "dem_total": 351, "lat": 32.748, "lon": -96.967, "pct_black": 0.18, "pct_white": 0.22, "pct_hispanic": 0.42, "pct_asian": 0.1, "crockett_share": 0.433, "talarico_share": 0.567, "crockett_votes": 100, "talarico_votes": 132}, {"county": "Dallas", "name": "Bear Creek Community Church", "dem_total": 181, "lat": 32.771, "lon": -97.03, "pct_black": 0.2, "pct_white": 0.15, "pct_hispanic": 0.52, "pct_asian": 0.06, "crockett_share": 0.445, "talarico_share": 0.555, "crockett_votes": 48, "talarico_votes": 61}, {"county": "Dallas", "name": "Coppell Town Center", "dem_total": 531, "lat": 32.955, "lon": -97.015, "pct_black": 0.06, "pct_white": 0.42, "pct_hispanic": 0.12, "pct_asian": 0.32, "crockett_share": 0.357, "talarico_share": 0.643, "crockett_votes": 131, "talarico_votes": 236}, {"county": "Dallas", "name": "Valley Ranch Library", "dem_total": 593, "lat": 32.918, "lon": -96.968, "pct_black": 0.15, "pct_white": 0.22, "pct_hispanic": 0.28, "pct_asian": 0.28, "crockett_share": 0.4, "talarico_share": 0.6, "crockett_votes": 158, "talarico_votes": 238}, {"county": "Dallas", "name": "Josey Ranch Lake Library", "dem_total": 632, "lat": 32.965, "lon": -96.893, "pct_black": 0.08, "pct_white": 0.38, "pct_hispanic": 0.2, "pct_asian": 0.26, "crockett_share": 0.372, "talarico_share": 0.628, "crockett_votes": 159, "talarico_votes": 268}, {"county": "Dallas", "name": "Madinah Masjid of Carrollton", "dem_total": 27, "lat": 32.973, "lon": -96.895, "pct_black": 0.08, "pct_white": 0.3, "pct_hispanic": 0.22, "pct_asian": 0.32, "crockett_share": 0.366, "talarico_share": 0.634, "crockett_votes": 7, "talarico_votes": 11}, {"county": "Dallas", "name": "Pioneer Event Center", "dem_total": 74, "lat": 32.899, "lon": -96.952, "pct_black": 0.1, "pct_white": 0.3, "pct_hispanic": 0.32, "pct_asian": 0.2, "crockett_share": 0.387, "talarico_share": 0.613, "crockett_votes": 14, "talarico_votes": 21}, {"county": "Dallas", "name": "Dallas College-Cedar Valley", "dem_total": 147, "lat": 32.589, "lon": -96.867, "pct_black": 0.55, "pct_white": 0.12, "pct_hispanic": 0.28, "pct_asian": 0.02, "crockett_share": 0.6, "talarico_share": 0.4, "crockett_votes": 57, "talarico_votes": 38}, {"county": "Harris", "name": "Acres Homes MultiService Ctr", "dem_total": 1583, "lat": 29.845, "lon": -95.395, "pct_black": 0.75, "pct_white": 0.03, "pct_hispanic": 0.18, "pct_asian": 0.01, "crockett_share": 0.691, "talarico_share": 0.309, "crockett_votes": 545, "talarico_votes": 243}, {"county": "Harris", "name": "Alief ISD Admin Building", "dem_total": 1156, "lat": 29.71, "lon": -95.595, "pct_black": 0.2, "pct_white": 0.08, "pct_hispanic": 0.4, "pct_asian": 0.28, "crockett_share": 0.418, "talarico_share": 0.582, "crockett_votes": 211, "talarico_votes": 293}, {"county": "Harris", "name": "BakerRipley East Aldine", "dem_total": 463, "lat": 29.895, "lon": -95.37, "pct_black": 0.25, "pct_white": 0.05, "pct_hispanic": 0.65, "pct_asian": 0.02, "crockett_share": 0.465, "talarico_share": 0.535, "crockett_votes": 103, "talarico_votes": 119}, {"county": "Harris", "name": "BakerRipley Pasadena Campus", "dem_total": 611, "lat": 29.691, "lon": -95.209, "pct_black": 0.03, "pct_white": 0.15, "pct_hispanic": 0.75, "pct_asian": 0.03, "crockett_share": 0.366, "talarico_share": 0.634, "crockett_votes": 99, "talarico_votes": 170}, {"county": "Harris", "name": "BakerRipley Ripley House", "dem_total": 827, "lat": 29.752, "lon": -95.34, "pct_black": 0.08, "pct_white": 0.08, "pct_hispanic": 0.78, "pct_asian": 0.03, "crockett_share": 0.388, "talarico_share": 0.613, "crockett_votes": 138, "talarico_votes": 218}, {"county": "Harris", "name": "Bay Area Community Center", "dem_total": 326, "lat": 29.546, "lon": -95.025, "pct_black": 0.08, "pct_white": 0.55, "pct_hispanic": 0.22, "pct_asian": 0.08, "crockett_share": 0.389, "talarico_share": 0.611, "crockett_votes": 52, "talarico_votes": 82}, {"county": "Harris", "name": "Bayland Park Community Ctr", "dem_total": 1421, "lat": 29.695, "lon": -95.53, "pct_black": 0.15, "pct_white": 0.15, "pct_hispanic": 0.5, "pct_asian": 0.15, "crockett_share": 0.41, "talarico_share": 0.59, "crockett_votes": 262, "talarico_votes": 376}, {"county": "Harris", "name": "Cactus Jack Cagle Comm Ctr", "dem_total": 796, "lat": 30.07, "lon": -95.56, "pct_black": 0.05, "pct_white": 0.65, "pct_hispanic": 0.2, "pct_asian": 0.03, "crockett_share": 0.38, "talarico_share": 0.62, "crockett_votes": 117, "talarico_votes": 192}, {"county": "Harris", "name": "Jersey Village Civic Center", "dem_total": 1047, "lat": 29.889, "lon": -95.57, "pct_black": 0.08, "pct_white": 0.4, "pct_hispanic": 0.35, "pct_asian": 0.1, "crockett_share": 0.387, "talarico_share": 0.613, "crockett_votes": 175, "talarico_votes": 277}, {"county": "Harris", "name": "South Houston Municipal Court", "dem_total": 188, "lat": 29.663, "lon": -95.235, "pct_black": 0.05, "pct_white": 0.12, "pct_hispanic": 0.78, "pct_asian": 0.02, "crockett_share": 0.375, "talarico_share": 0.625, "crockett_votes": 31, "talarico_votes": 51}, {"county": "Harris", "name": "Crosby Community Center", "dem_total": 322, "lat": 29.912, "lon": -95.065, "pct_black": 0.12, "pct_white": 0.5, "pct_hispanic": 0.3, "pct_asian": 0.02, "crockett_share": 0.411, "talarico_share": 0.589, "crockett_votes": 68, "talarico_votes": 98}, {"county": "Harris", "name": "East Harris County Activity Ctr", "dem_total": 788, "lat": 29.891, "lon": -95.027, "pct_black": 0.1, "pct_white": 0.45, "pct_hispanic": 0.35, "pct_asian": 0.04, "crockett_share": 0.4, "talarico_share": 0.6, "crockett_votes": 155, "talarico_votes": 233}, {"county": "Harris", "name": "Fallbrook Church", "dem_total": 1779, "lat": 29.87, "lon": -95.53, "pct_black": 0.15, "pct_white": 0.35, "pct_hispanic": 0.35, "pct_asian": 0.08, "crockett_share": 0.42, "talarico_share": 0.58, "crockett_votes": 344, "talarico_votes": 476}, {"county": "Harris", "name": "First Congregational Church", "dem_total": 626, "lat": 29.765, "lon": -95.423, "pct_black": 0.08, "pct_white": 0.48, "pct_hispanic": 0.2, "pct_asian": 0.15, "crockett_share": 0.385, "talarico_share": 0.615, "crockett_votes": 102, "talarico_votes": 163}, {"county": "Harris", "name": "FountainLife Center", "dem_total": 516, "lat": 29.68, "lon": -95.505, "pct_black": 0.22, "pct_white": 0.12, "pct_hispanic": 0.55, "pct_asian": 0.05, "crockett_share": 0.453, "talarico_share": 0.547, "crockett_votes": 120, "talarico_votes": 146}, {"county": "Harris", "name": "Freeman Branch Library", "dem_total": 1719, "lat": 29.57, "lon": -95.172, "pct_black": 0.1, "pct_white": 0.35, "pct_hispanic": 0.4, "pct_asian": 0.08, "crockett_share": 0.398, "talarico_share": 0.602, "crockett_votes": 315, "talarico_votes": 477}, {"county": "Harris", "name": "George HW Bush Comm Ctr", "dem_total": 1334, "lat": 29.97, "lon": -95.25, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.3, "pct_asian": 0.12, "crockett_share": 0.395, "talarico_share": 0.605, "crockett_votes": 228, "talarico_votes": 348}, {"county": "Harris", "name": "Harris Co Attorney Conf Ctr", "dem_total": 637, "lat": 29.76, "lon": -95.37, "pct_black": 0.25, "pct_white": 0.25, "pct_hispanic": 0.38, "pct_asian": 0.07, "crockett_share": 0.463, "talarico_share": 0.537, "crockett_votes": 146, "talarico_votes": 169}, {"county": "Harris", "name": "Harris Co Scarsdale Annex", "dem_total": 1334, "lat": 29.598, "lon": -95.23, "pct_black": 0.18, "pct_white": 0.25, "pct_hispanic": 0.45, "pct_asian": 0.06, "crockett_share": 0.434, "talarico_share": 0.566, "crockett_votes": 242, "talarico_votes": 315}, {"county": "Harris", "name": "HCC Northline", "dem_total": 228, "lat": 29.845, "lon": -95.37, "pct_black": 0.3, "pct_white": 0.05, "pct_hispanic": 0.6, "pct_asian": 0.02, "crockett_share": 0.487, "talarico_share": 0.512, "crockett_votes": 47, "talarico_votes": 50}, {"county": "Harris", "name": "HCC Southeast College", "dem_total": 787, "lat": 29.621, "lon": -95.3, "pct_black": 0.15, "pct_white": 0.15, "pct_hispanic": 0.6, "pct_asian": 0.04, "crockett_share": 0.422, "talarico_share": 0.578, "crockett_votes": 158, "talarico_votes": 216}, {"county": "Harris", "name": "HCC West Loop South", "dem_total": 1743, "lat": 29.738, "lon": -95.46, "pct_black": 0.15, "pct_white": 0.3, "pct_hispanic": 0.3, "pct_asian": 0.18, "crockett_share": 0.41, "talarico_share": 0.59, "crockett_votes": 303, "talarico_votes": 435}, {"county": "Harris", "name": "HCPL Maud Smith Marks Library", "dem_total": 891, "lat": 29.925, "lon": -95.58, "pct_black": 0.12, "pct_white": 0.35, "pct_hispanic": 0.38, "pct_asian": 0.08, "crockett_share": 0.406, "talarico_share": 0.594, "crockett_votes": 149, "talarico_votes": 218}, {"county": "Harris", "name": "HCPL North Channel Library", "dem_total": 1571, "lat": 29.793, "lon": -95.135, "pct_black": 0.05, "pct_white": 0.1, "pct_hispanic": 0.8, "pct_asian": 0.02, "crockett_share": 0.375, "talarico_share": 0.625, "crockett_votes": 256, "talarico_votes": 428}, {"county": "Harris", "name": "HCPL Octavia Fields Library", "dem_total": 1644, "lat": 29.625, "lon": -95.185, "pct_black": 0.25, "pct_white": 0.2, "pct_hispanic": 0.45, "pct_asian": 0.04, "crockett_share": 0.468, "talarico_share": 0.532, "crockett_votes": 351, "talarico_votes": 400}, {"county": "Harris", "name": "Hilton Post Oak by Galleria", "dem_total": 488, "lat": 29.735, "lon": -95.465, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.25, "pct_asian": 0.18, "crockett_share": 0.387, "talarico_share": 0.613, "crockett_votes": 84, "talarico_votes": 132}, {"county": "Harris", "name": "Hiram Clarke MultiService Ctr", "dem_total": 1460, "lat": 29.655, "lon": -95.455, "pct_black": 0.55, "pct_white": 0.05, "pct_hispanic": 0.35, "pct_asian": 0.02, "crockett_share": 0.6, "talarico_share": 0.4, "crockett_votes": 425, "talarico_votes": 284}, {"county": "Harris", "name": "Hockley Community Center", "dem_total": 192, "lat": 30.02, "lon": -95.815, "pct_black": 0.05, "pct_white": 0.65, "pct_hispanic": 0.22, "pct_asian": 0.02, "crockett_share": 0.379, "talarico_share": 0.621, "crockett_votes": 27, "talarico_votes": 43}, {"county": "Harris", "name": "J D Walker Community Center", "dem_total": 417, "lat": 29.89, "lon": -95.05, "pct_black": 0.08, "pct_white": 0.5, "pct_hispanic": 0.32, "pct_asian": 0.04, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 71, "talarico_votes": 111}, {"county": "Harris", "name": "John Phelps Courthouse", "dem_total": 444, "lat": 29.683, "lon": -95.195, "pct_black": 0.05, "pct_white": 0.12, "pct_hispanic": 0.78, "pct_asian": 0.02, "crockett_share": 0.375, "talarico_share": 0.625, "crockett_votes": 79, "talarico_votes": 131}, {"county": "Harris", "name": "Juergens Hall Community Ctr", "dem_total": 1131, "lat": 29.957, "lon": -95.405, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.35, "pct_asian": 0.08, "crockett_share": 0.398, "talarico_share": 0.603, "crockett_votes": 175, "talarico_votes": 265}, {"county": "Harris", "name": "Kashmere MultiService Ctr", "dem_total": 850, "lat": 29.789, "lon": -95.325, "pct_black": 0.7, "pct_white": 0.03, "pct_hispanic": 0.24, "pct_asian": 0.01, "crockett_share": 0.667, "talarico_share": 0.333, "crockett_votes": 268, "talarico_votes": 134}, {"county": "Harris", "name": "Katy Branch HC Public Library", "dem_total": 941, "lat": 29.79, "lon": -95.758, "pct_black": 0.08, "pct_white": 0.4, "pct_hispanic": 0.3, "pct_asian": 0.15, "crockett_share": 0.382, "talarico_share": 0.619, "crockett_votes": 148, "talarico_votes": 239}, {"county": "Harris", "name": "Kingwood Community Center", "dem_total": 914, "lat": 30.05, "lon": -95.18, "pct_black": 0.06, "pct_white": 0.6, "pct_hispanic": 0.18, "pct_asian": 0.08, "crockett_share": 0.381, "talarico_share": 0.619, "crockett_votes": 163, "talarico_votes": 266}, {"county": "Harris", "name": "Lone Star College Creekside", "dem_total": 481, "lat": 30.06, "lon": -95.66, "pct_black": 0.06, "pct_white": 0.55, "pct_hispanic": 0.25, "pct_asian": 0.06, "crockett_share": 0.383, "talarico_share": 0.617, "crockett_votes": 79, "talarico_votes": 128}, {"county": "Harris", "name": "Lone Star College North Harris", "dem_total": 560, "lat": 30.01, "lon": -95.41, "pct_black": 0.18, "pct_white": 0.25, "pct_hispanic": 0.45, "pct_asian": 0.05, "crockett_share": 0.437, "talarico_share": 0.563, "crockett_votes": 108, "talarico_votes": 139}, {"county": "Harris", "name": "Lone Star College Victory Ctr", "dem_total": 819, "lat": 29.855, "lon": -95.545, "pct_black": 0.12, "pct_white": 0.3, "pct_hispanic": 0.42, "pct_asian": 0.08, "crockett_share": 0.408, "talarico_share": 0.592, "crockett_votes": 157, "talarico_votes": 229}, {"county": "Harris", "name": "Metropolitan MultiService Ctr", "dem_total": 3617, "lat": 29.75, "lon": -95.39, "pct_black": 0.12, "pct_white": 0.35, "pct_hispanic": 0.3, "pct_asian": 0.15, "crockett_share": 0.401, "talarico_share": 0.599, "crockett_votes": 638, "talarico_votes": 953}, {"county": "Harris", "name": "Moody Park Community Center", "dem_total": 856, "lat": 29.79, "lon": -95.37, "pct_black": 0.08, "pct_white": 0.05, "pct_hispanic": 0.82, "pct_asian": 0.02, "crockett_share": 0.389, "talarico_share": 0.611, "crockett_votes": 155, "talarico_votes": 243}, {"county": "Harris", "name": "Northeast MultiService Ctr", "dem_total": 1209, "lat": 29.81, "lon": -95.3, "pct_black": 0.2, "pct_white": 0.1, "pct_hispanic": 0.62, "pct_asian": 0.04, "crockett_share": 0.442, "talarico_share": 0.558, "crockett_votes": 246, "talarico_votes": 311}, {"county": "Harris", "name": "Nottingham Park Building", "dem_total": 1142, "lat": 29.725, "lon": -95.51, "pct_black": 0.1, "pct_white": 0.35, "pct_hispanic": 0.3, "pct_asian": 0.18, "crockett_share": 0.388, "talarico_share": 0.613, "crockett_votes": 187, "talarico_votes": 295}, {"county": "Harris", "name": "Prairie View A&M Northwest", "dem_total": 1423, "lat": 29.82, "lon": -95.465, "pct_black": 0.4, "pct_white": 0.15, "pct_hispanic": 0.3, "pct_asian": 0.08, "crockett_share": 0.533, "talarico_share": 0.467, "crockett_votes": 322, "talarico_votes": 282}, {"county": "Harris", "name": "Raindrop Turkish House", "dem_total": 758, "lat": 29.735, "lon": -95.53, "pct_black": 0.12, "pct_white": 0.2, "pct_hispanic": 0.42, "pct_asian": 0.18, "crockett_share": 0.398, "talarico_share": 0.602, "crockett_votes": 143, "talarico_votes": 217}, {"county": "Harris", "name": "Weekley Community Center", "dem_total": 192, "lat": 29.795, "lon": -95.615, "pct_black": 0.08, "pct_white": 0.42, "pct_hispanic": 0.3, "pct_asian": 0.12, "crockett_share": 0.386, "talarico_share": 0.614, "crockett_votes": 279, "talarico_votes": 444}, {"county": "Harris", "name": "St John Lutheran Church", "dem_total": 445, "lat": 29.965, "lon": -95.5, "pct_black": 0.06, "pct_white": 0.5, "pct_hispanic": 0.32, "pct_asian": 0.05, "crockett_share": 0.382, "talarico_share": 0.618, "crockett_votes": 65, "talarico_votes": 106}, {"county": "Harris", "name": "San Jacinto College Gen Park", "dem_total": 866, "lat": 29.885, "lon": -95.19, "pct_black": 0.15, "pct_white": 0.3, "pct_hispanic": 0.45, "pct_asian": 0.04, "crockett_share": 0.422, "talarico_share": 0.578, "crockett_votes": 156, "talarico_votes": 214}, {"county": "Harris", "name": "Sheraton Brookhollow Hotel", "dem_total": 735, "lat": 29.835, "lon": -95.455, "pct_black": 0.15, "pct_white": 0.25, "pct_hispanic": 0.45, "pct_asian": 0.08, "crockett_share": 0.42, "talarico_share": 0.58, "crockett_votes": 126, "talarico_votes": 173}, {"county": "Harris", "name": "Shrine of Black Madonna", "dem_total": 426, "lat": 29.74, "lon": -95.35, "pct_black": 0.65, "pct_white": 0.05, "pct_hispanic": 0.25, "pct_asian": 0.02, "crockett_share": 0.645, "talarico_share": 0.355, "crockett_votes": 148, "talarico_votes": 81}, {"county": "Harris", "name": "SPJST Lodge 88", "dem_total": 1597, "lat": 29.675, "lon": -95.26, "pct_black": 0.1, "pct_white": 0.2, "pct_hispanic": 0.6, "pct_asian": 0.04, "crockett_share": 0.4, "talarico_share": 0.6, "crockett_votes": 263, "talarico_votes": 395}, {"county": "Harris", "name": "Sterling Municipal Library", "dem_total": 522, "lat": 29.68, "lon": -95.15, "pct_black": 0.1, "pct_white": 0.25, "pct_hispanic": 0.55, "pct_asian": 0.04, "crockett_share": 0.4, "talarico_share": 0.6, "crockett_votes": 95, "talarico_votes": 142}, {"county": "Harris", "name": "Steve Radack Community Ctr", "dem_total": 1449, "lat": 29.77, "lon": -95.64, "pct_black": 0.06, "pct_white": 0.45, "pct_hispanic": 0.28, "pct_asian": 0.14, "crockett_share": 0.373, "talarico_share": 0.627, "crockett_votes": 220, "talarico_votes": 370}, {"county": "Harris", "name": "Sunnyside Health & MSC", "dem_total": 1773, "lat": 29.672, "lon": -95.378, "pct_black": 0.78, "pct_white": 0.02, "pct_hispanic": 0.17, "pct_asian": 0.01, "crockett_share": 0.703, "talarico_share": 0.297, "crockett_votes": 592, "talarico_votes": 250}, {"county": "Harris", "name": "Ted Poe Community Center", "dem_total": 619, "lat": 30.02, "lon": -95.155, "pct_black": 0.08, "pct_white": 0.55, "pct_hispanic": 0.25, "pct_asian": 0.05, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 90, "talarico_votes": 139}, {"county": "Harris", "name": "Tom Bass Park Comm Ctr", "dem_total": 767, "lat": 29.618, "lon": -95.395, "pct_black": 0.45, "pct_white": 0.15, "pct_hispanic": 0.32, "pct_asian": 0.03, "crockett_share": 0.557, "talarico_share": 0.443, "crockett_votes": 175, "talarico_votes": 139}, {"county": "Harris", "name": "Tomball Public Works", "dem_total": 574, "lat": 30.098, "lon": -95.616, "pct_black": 0.06, "pct_white": 0.55, "pct_hispanic": 0.3, "pct_asian": 0.03, "crockett_share": 0.383, "talarico_share": 0.617, "crockett_votes": 94, "talarico_votes": 151}, {"county": "Harris", "name": "Tracy Gee Community Center", "dem_total": 905, "lat": 29.735, "lon": -95.565, "pct_black": 0.08, "pct_white": 0.25, "pct_hispanic": 0.25, "pct_asian": 0.35, "crockett_share": 0.362, "talarico_share": 0.638, "crockett_votes": 163, "talarico_votes": 287}, {"county": "Harris", "name": "Trini Mendenhall Comm Ctr", "dem_total": 1451, "lat": 29.8, "lon": -95.555, "pct_black": 0.1, "pct_white": 0.35, "pct_hispanic": 0.35, "pct_asian": 0.12, "crockett_share": 0.395, "talarico_share": 0.605, "crockett_votes": 254, "talarico_votes": 388}, {"county": "Harris", "name": "Vera Brummet May Comm Ctr", "dem_total": 72, "lat": 30.115, "lon": -95.505, "pct_black": 0.05, "pct_white": 0.6, "pct_hispanic": 0.25, "pct_asian": 0.03, "crockett_share": 0.38, "talarico_share": 0.62, "crockett_votes": 12, "talarico_votes": 20}, {"county": "Harris", "name": "Wheeler Ave Baptist Church", "dem_total": 1213, "lat": 29.725, "lon": -95.36, "pct_black": 0.7, "pct_white": 0.05, "pct_hispanic": 0.2, "pct_asian": 0.02, "crockett_share": 0.667, "talarico_share": 0.333, "crockett_votes": 396, "talarico_votes": 198}, {"county": "Harris", "name": "Wyndham Houston NRG Park", "dem_total": 652, "lat": 29.69, "lon": -95.405, "pct_black": 0.3, "pct_white": 0.15, "pct_hispanic": 0.42, "pct_asian": 0.06, "crockett_share": 0.489, "talarico_share": 0.51, "crockett_votes": 143, "talarico_votes": 149}, {"county": "Travis", "name": "Austin City Hall", "dem_total": 704, "lat": 30.264, "lon": -97.747, "pct_black": 0.08, "pct_white": 0.45, "pct_hispanic": 0.3, "pct_asian": 0.08, "crockett_share": 0.392, "talarico_share": 0.608, "crockett_votes": 135, "talarico_votes": 210}, {"county": "Travis", "name": "Austin Energy Headquarters", "dem_total": 1539, "lat": 30.263, "lon": -97.718, "pct_black": 0.1, "pct_white": 0.4, "pct_hispanic": 0.32, "pct_asian": 0.1, "crockett_share": 0.397, "talarico_share": 0.603, "crockett_votes": 259, "talarico_votes": 394}, {"county": "Travis", "name": "Austin Oaks Church", "dem_total": 1568, "lat": 30.36, "lon": -97.768, "pct_black": 0.04, "pct_white": 0.6, "pct_hispanic": 0.18, "pct_asian": 0.1, "crockett_share": 0.37, "talarico_share": 0.63, "crockett_votes": 248, "talarico_votes": 421}, {"county": "Travis", "name": "Austin Permitting & Dev Ctr", "dem_total": 673, "lat": 30.268, "lon": -97.702, "pct_black": 0.12, "pct_white": 0.35, "pct_hispanic": 0.38, "pct_asian": 0.08, "crockett_share": 0.406, "talarico_share": 0.594, "crockett_votes": 116, "talarico_votes": 169}, {"county": "Travis", "name": "Austin Recreation Center", "dem_total": 1005, "lat": 30.273, "lon": -97.755, "pct_black": 0.06, "pct_white": 0.55, "pct_hispanic": 0.22, "pct_asian": 0.08, "crockett_share": 0.382, "talarico_share": 0.618, "crockett_votes": 184, "talarico_votes": 298}, {"county": "Travis", "name": "Balcones Bingo", "dem_total": 416, "lat": 30.4, "lon": -97.723, "pct_black": 0.04, "pct_white": 0.5, "pct_hispanic": 0.25, "pct_asian": 0.12, "crockett_share": 0.369, "talarico_share": 0.631, "crockett_votes": 67, "talarico_votes": 114}, {"county": "Travis", "name": "Balcones Woods Shopping Ctr", "dem_total": 1539, "lat": 30.435, "lon": -97.765, "pct_black": 0.04, "pct_white": 0.55, "pct_hispanic": 0.2, "pct_asian": 0.12, "crockett_share": 0.369, "talarico_share": 0.631, "crockett_votes": 258, "talarico_votes": 439}, {"county": "Travis", "name": "Bee Cave City Hall", "dem_total": 1077, "lat": 30.308, "lon": -97.944, "pct_black": 0.02, "pct_white": 0.72, "pct_hispanic": 0.12, "pct_asian": 0.08, "crockett_share": 0.36, "talarico_share": 0.64, "crockett_votes": 167, "talarico_votes": 298}, {"county": "Travis", "name": "Ben Hur Shrine Center", "dem_total": 2643, "lat": 30.29, "lon": -97.697, "pct_black": 0.1, "pct_white": 0.42, "pct_hispanic": 0.32, "pct_asian": 0.08, "crockett_share": 0.399, "talarico_share": 0.601, "crockett_votes": 454, "talarico_votes": 684}, {"county": "Travis", "name": "Carver Branch Library", "dem_total": 1096, "lat": 30.263, "lon": -97.72, "pct_black": 0.3, "pct_white": 0.2, "pct_hispanic": 0.4, "pct_asian": 0.04, "crockett_share": 0.49, "talarico_share": 0.51, "crockett_votes": 248, "talarico_votes": 259}, {"county": "Travis", "name": "Cepeda Branch Library", "dem_total": 492, "lat": 30.24, "lon": -97.77, "pct_black": 0.04, "pct_white": 0.12, "pct_hispanic": 0.78, "pct_asian": 0.02, "crockett_share": 0.372, "talarico_share": 0.628, "crockett_votes": 76, "talarico_votes": 127}, {"county": "Travis", "name": "Christ Episcopal Church", "dem_total": 524, "lat": 30.232, "lon": -97.764, "pct_black": 0.05, "pct_white": 0.2, "pct_hispanic": 0.65, "pct_asian": 0.04, "crockett_share": 0.377, "talarico_share": 0.623, "crockett_votes": 83, "talarico_votes": 136}, {"county": "Travis", "name": "Christ Our Savior Lutheran", "dem_total": 272, "lat": 30.462, "lon": -97.708, "pct_black": 0.03, "pct_white": 0.55, "pct_hispanic": 0.22, "pct_asian": 0.12, "crockett_share": 0.363, "talarico_share": 0.637, "crockett_votes": 48, "talarico_votes": 83}, {"county": "Travis", "name": "Circle C Community Center", "dem_total": 737, "lat": 30.186, "lon": -97.859, "pct_black": 0.03, "pct_white": 0.55, "pct_hispanic": 0.18, "pct_asian": 0.16, "crockett_share": 0.359, "talarico_share": 0.641, "crockett_votes": 89, "talarico_votes": 158}, {"county": "Travis", "name": "Community Ctr at Del Valle", "dem_total": 342, "lat": 30.187, "lon": -97.608, "pct_black": 0.08, "pct_white": 0.12, "pct_hispanic": 0.72, "pct_asian": 0.03, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 60, "talarico_votes": 94}, {"county": "Travis", "name": "Community Ctr at Oak Hill", "dem_total": 240, "lat": 30.247, "lon": -97.872, "pct_black": 0.03, "pct_white": 0.6, "pct_hispanic": 0.22, "pct_asian": 0.06, "crockett_share": 0.371, "talarico_share": 0.629, "crockett_votes": 34, "talarico_votes": 58}, {"county": "Travis", "name": "Dan Ruiz Branch Library", "dem_total": 651, "lat": 30.18, "lon": -97.722, "pct_black": 0.05, "pct_white": 0.1, "pct_hispanic": 0.78, "pct_asian": 0.03, "crockett_share": 0.375, "talarico_share": 0.625, "crockett_votes": 115, "talarico_votes": 191}, {"county": "Travis", "name": "Disability Rights Texas", "dem_total": 1025, "lat": 30.35, "lon": -97.723, "pct_black": 0.06, "pct_white": 0.5, "pct_hispanic": 0.25, "pct_asian": 0.1, "crockett_share": 0.381, "talarico_share": 0.619, "crockett_votes": 169, "talarico_votes": 274}, {"county": "Travis", "name": "Dove Springs Rec Center", "dem_total": 768, "lat": 30.188, "lon": -97.733, "pct_black": 0.06, "pct_white": 0.08, "pct_hispanic": 0.8, "pct_asian": 0.03, "crockett_share": 0.378, "talarico_share": 0.622, "crockett_votes": 126, "talarico_votes": 207}, {"county": "Travis", "name": "Gus Garcia Rec Center", "dem_total": 820, "lat": 30.349, "lon": -97.688, "pct_black": 0.08, "pct_white": 0.15, "pct_hispanic": 0.65, "pct_asian": 0.05, "crockett_share": 0.391, "talarico_share": 0.609, "crockett_votes": 150, "talarico_votes": 234}, {"county": "Travis", "name": "Lake Travis ISD Ed Dev Ctr", "dem_total": 280, "lat": 30.393, "lon": -97.942, "pct_black": 0.02, "pct_white": 0.75, "pct_hispanic": 0.12, "pct_asian": 0.05, "crockett_share": 0.363, "talarico_share": 0.637, "crockett_votes": 44, "talarico_votes": 77}, {"county": "Travis", "name": "Lakeway Activity Center", "dem_total": 577, "lat": 30.363, "lon": -97.985, "pct_black": 0.02, "pct_white": 0.72, "pct_hispanic": 0.12, "pct_asian": 0.06, "crockett_share": 0.365, "talarico_share": 0.635, "crockett_votes": 90, "talarico_votes": 157}, {"county": "Travis", "name": "LBJ School of Public Affairs", "dem_total": 477, "lat": 30.285, "lon": -97.73, "pct_black": 0.06, "pct_white": 0.5, "pct_hispanic": 0.22, "pct_asian": 0.12, "crockett_share": 0.38, "talarico_share": 0.62, "crockett_votes": 84, "talarico_votes": 137}, {"county": "Travis", "name": "Manor ISD Admin Building", "dem_total": 960, "lat": 30.343, "lon": -97.56, "pct_black": 0.15, "pct_white": 0.25, "pct_hispanic": 0.48, "pct_asian": 0.05, "crockett_share": 0.423, "talarico_share": 0.577, "crockett_votes": 175, "talarico_votes": 239}, {"county": "Travis", "name": "Northwest Rec Center", "dem_total": 1128, "lat": 30.375, "lon": -97.742, "pct_black": 0.05, "pct_white": 0.48, "pct_hispanic": 0.28, "pct_asian": 0.1, "crockett_share": 0.376, "talarico_share": 0.624, "crockett_votes": 170, "talarico_votes": 282}, {"county": "Travis", "name": "PfISD Rock Gym", "dem_total": 1885, "lat": 30.45, "lon": -97.617, "pct_black": 0.06, "pct_white": 0.38, "pct_hispanic": 0.28, "pct_asian": 0.18, "crockett_share": 0.374, "talarico_share": 0.626, "crockett_votes": 307, "talarico_votes": 515}, {"county": "Travis", "name": "Pleasant Hill Branch Library", "dem_total": 1099, "lat": 30.225, "lon": -97.7, "pct_black": 0.15, "pct_white": 0.18, "pct_hispanic": 0.58, "pct_asian": 0.03, "crockett_share": 0.423, "talarico_share": 0.577, "crockett_votes": 204, "talarico_votes": 277}, {"county": "Travis", "name": "Randalls Brodie", "dem_total": 1843, "lat": 30.208, "lon": -97.822, "pct_black": 0.04, "pct_white": 0.48, "pct_hispanic": 0.28, "pct_asian": 0.12, "crockett_share": 0.368, "talarico_share": 0.632, "crockett_votes": 312, "talarico_votes": 537}, {"county": "Travis", "name": "Randalls Flagship West Lake", "dem_total": 1377, "lat": 30.296, "lon": -97.81, "pct_black": 0.02, "pct_white": 0.7, "pct_hispanic": 0.14, "pct_asian": 0.06, "crockett_share": 0.365, "talarico_share": 0.635, "crockett_votes": 228, "talarico_votes": 396}, {"county": "Travis", "name": "Randalls Steiner Ranch", "dem_total": 895, "lat": 30.38, "lon": -97.887, "pct_black": 0.02, "pct_white": 0.65, "pct_hispanic": 0.14, "pct_asian": 0.1, "crockett_share": 0.362, "talarico_share": 0.637, "crockett_votes": 137, "talarico_votes": 242}, {"county": "Travis", "name": "Riverbend Centre", "dem_total": 330, "lat": 30.319, "lon": -97.88, "pct_black": 0.02, "pct_white": 0.68, "pct_hispanic": 0.15, "pct_asian": 0.08, "crockett_share": 0.361, "talarico_share": 0.639, "crockett_votes": 56, "talarico_votes": 98}, {"county": "Travis", "name": "RRISD Hartfield PAC", "dem_total": 640, "lat": 30.438, "lon": -97.702, "pct_black": 0.04, "pct_white": 0.52, "pct_hispanic": 0.22, "pct_asian": 0.14, "crockett_share": 0.366, "talarico_share": 0.634, "crockett_votes": 98, "talarico_votes": 170}, {"county": "Travis", "name": "South Austin Rec Center", "dem_total": 1176, "lat": 30.239, "lon": -97.77, "pct_black": 0.04, "pct_white": 0.3, "pct_hispanic": 0.52, "pct_asian": 0.06, "crockett_share": 0.374, "talarico_share": 0.626, "crockett_votes": 211, "talarico_votes": 354}, {"county": "Travis", "name": "Travis Co Civil & Family Courts", "dem_total": 381, "lat": 30.27, "lon": -97.74, "pct_black": 0.1, "pct_white": 0.35, "pct_hispanic": 0.38, "pct_asian": 0.08, "crockett_share": 0.401, "talarico_share": 0.599, "crockett_votes": 79, "talarico_votes": 119}, {"county": "Travis", "name": "Travis County Clerk", "dem_total": 732, "lat": 30.263, "lon": -97.744, "pct_black": 0.1, "pct_white": 0.35, "pct_hispanic": 0.38, "pct_asian": 0.08, "crockett_share": 0.401, "talarico_share": 0.599, "crockett_votes": 118, "talarico_votes": 177}, {"county": "Travis", "name": "Typhoon Texas Waterpark", "dem_total": 1119, "lat": 30.441, "lon": -97.601, "pct_black": 0.06, "pct_white": 0.38, "pct_hispanic": 0.3, "pct_asian": 0.16, "crockett_share": 0.376, "talarico_share": 0.624, "crockett_votes": 165, "talarico_votes": 274}, {"county": "Travis", "name": "UT Texas Union", "dem_total": 1665, "lat": 30.286, "lon": -97.741, "pct_black": 0.05, "pct_white": 0.4, "pct_hispanic": 0.25, "pct_asian": 0.2, "crockett_share": 0.367, "talarico_share": 0.633, "crockett_votes": 302, "talarico_votes": 521}, {"county": "Travis", "name": "Westoak Woods Baptist Church", "dem_total": 1230, "lat": 30.212, "lon": -97.84, "pct_black": 0.04, "pct_white": 0.42, "pct_hispanic": 0.35, "pct_asian": 0.1, "crockett_share": 0.372, "talarico_share": 0.628, "crockett_votes": 194, "talarico_votes": 327}, {"county": "Travis", "name": "Wheatsville Food Coop S Lamar", "dem_total": 1259, "lat": 30.248, "lon": -97.775, "pct_black": 0.05, "pct_white": 0.5, "pct_hispanic": 0.28, "pct_asian": 0.08, "crockett_share": 0.378, "talarico_share": 0.622, "crockett_votes": 208, "talarico_votes": 341}];
+
+
+// ── RACE PREFERENCE SLIDERS (Crockett share by group, %) ──
+var DEFAULT_PREF = {black:80, white:35, hisp:35, asian:25};
+var PREF = {black:80, white:35, hisp:35, asian:25};
+var ELEC_DEFAULT_WEIGHTS = {white:0.75, black:1.67, hisp:1.40, asian:1.0, other:1.0};
+var ELEC_WEIGHTS = {white:0.75, black:1.67, hisp:1.40, asian:1.0, other:1.0};
+var ELEC_MODE = 'fixed'; // 'fixed' uses ELEC_WEIGHTS as-is; 'target' solves weights to hit ELEC_TARGET
+var ELEC_TARGET = null; // fractions summing to 1
+var ELEC_DEFAULT_SLIDERS = {white:45, black:21, hisp:26, asian:4}; // % targets; Other is remainder
+
+function _adjShares(base, weights){
+  var pw=base.white||0, pb=base.black||0, ph=base.hisp||0, pa=base.asian||0, po=base.other||0;
+  var tw = pw*weights.white + pb*weights.black + ph*weights.hisp + pa*weights.asian + po*weights.other;
+  if(!(tw>0)) tw = 1;
+  return {
+    white:(pw*weights.white)/tw,
+    black:(pb*weights.black)/tw,
+    hisp:(ph*weights.hisp)/tw,
+    asian:(pa*weights.asian)/tw,
+    other:(po*weights.other)/tw
+  };
+}
+
+function electorateAdjust(base){ return _adjShares(base, ELEC_WEIGHTS); }
+
+function computeStatewideElectorateWithWeights(weights){
+  if(!COUNTY_TURNOUT || !COUNTY_RACE) return null;
+  var tot=0, sw=0, sb=0, sh=0, sa=0, so=0;
+  for(var i=0;i<COUNTY_TURNOUT.length;i++){
+    var r=COUNTY_TURNOUT[i];
+    var early=r.early||0;
+    if(!(early>0)) continue;
+    var cr=COUNTY_RACE[r.key];
+    if(!cr || !cr.base) continue;
+    var adj=_adjShares(cr.base, weights);
+    tot += early;
+    sw += early*adj.white; sb += early*adj.black; sh += early*adj.hisp; sa += early*adj.asian; so += early*adj.other;
+  }
+  if(!(tot>0)) return null;
+  return {white:sw/tot, black:sb/tot, hisp:sh/tot, asian:sa/tot, other:so/tot, tot:tot};
+}
+
+function solveWeightsToTargets(target){
+  // multiplicative raking: w_r <- w_r * (t_r / Q_r)
+  var w={white:ELEC_DEFAULT_WEIGHTS.white, black:ELEC_DEFAULT_WEIGHTS.black, hisp:ELEC_DEFAULT_WEIGHTS.hisp, asian:ELEC_DEFAULT_WEIGHTS.asian, other:1.0};
+  var races=['white','black','hisp','asian'];
+  for(var it=0; it<60; it++){
+    var q=computeStatewideElectorateWithWeights(w);
+    if(!q) break;
+    var err=0;
+    for(var j=0;j<races.length;j++){
+      var r=races[j];
+      var tr=target[r];
+      var qr=q[r];
+      if(tr>0 && qr>0){
+        w[r] = w[r] * (tr/qr);
+        if(w[r] < 0.05) w[r]=0.05; if(w[r] > 8) w[r]=8;
+      }
+      err = Math.max(err, Math.abs((qr||0) - (tr||0)));
+    }
+    if(err < 1e-4) break;
+  }
+  return {white:w.white, black:w.black, hisp:w.hisp, asian:w.asian, other:1.0};
+}
+
+function setElectorateModeFixed(){
+  ELEC_MODE='fixed';
+  ELEC_TARGET=null;
+  ELEC_WEIGHTS={white:ELEC_DEFAULT_WEIGHTS.white, black:ELEC_DEFAULT_WEIGHTS.black, hisp:ELEC_DEFAULT_WEIGHTS.hisp, asian:ELEC_DEFAULT_WEIGHTS.asian, other:1.0};
+}
+
+function _clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+// ── Color scale: margin-based diverging (Talarico ↔ tossup ↔ Crockett) ──
+function _hexToRgb(h){
+  h=String(h||'').replace('#','').trim();
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
+}
+function _rgbToHex(r,g,b){
+  r=Math.max(0,Math.min(255,Math.round(r)));
+  g=Math.max(0,Math.min(255,Math.round(g)));
+  b=Math.max(0,Math.min(255,Math.round(b)));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function _lerp(a,b,t){ return a+(b-a)*t; }
+function _lerpHex(h1,h2,t){
+  var a=_hexToRgb(h1), b=_hexToRgb(h2);
+  return _rgbToHex(_lerp(a.r,b.r,t), _lerp(a.g,b.g,t), _lerp(a.b,b.b,t));
+}
+function _darken(hex,f){
+  var c=_hexToRgb(hex);
+  return _rgbToHex(c.r*f, c.g*f, c.b*f);
+}
+function _colorByMargin(m){
+  m=Math.max(-1,Math.min(1,m));
+  var neutral='#f1f5f9', c='#d4712e', t='#239e76';
+  return m>=0 ? _lerpHex(neutral,c,m) : _lerpHex(neutral,t,-m);
+}
+function _opacityByMargin(m){
+  m=Math.abs(Math.max(-1,Math.min(1,m)));
+  return Math.max(0.70, Math.min(0.95, 0.75 + 0.20*m));
+}
+
+function computeModel(){
+  var b=PREF.black/100, w=PREF.white/100, h=PREF.hisp/100, a=PREF.asian/100;
+  for(var i=0;i<DATA.length;i++){
+    var d=DATA[i];
+    var pb=d.pct_black||0, pw=d.pct_white||0, ph=d.pct_hispanic||0, pa=d.pct_asian||0;
+    var sum = pb+pw+ph+pa;
+    var po = Math.max(0, 1 - sum);
+    var adj = electorateAdjust({white:pw, black:pb, hisp:ph, asian:pa, other:po});
+    var cs = adj.black*b + adj.white*w + adj.hisp*h + adj.asian*a + adj.other*0.5;
+    cs = _clamp01(cs);
+    d.crockett_share = cs;
+    d.talarico_share = 1 - cs;
+    d.crockett_votes = Math.round(d.dem_total * cs);
+    d.talarico_votes = d.dem_total - d.crockett_votes;
+  }
+}
+
+function updateAssumpText(){
+  var el=document.getElementById('assumpTxt');
+  if(!el) return;
+  el.textContent =
+    'Black voters ' + PREF.black + '/' + (100-PREF.black) + ' Crockett · ' +
+    'White voters ' + PREF.white + '/' + (100-PREF.white) + ' Crockett · ' +
+    'Hispanic voters ' + PREF.hisp + '/' + (100-PREF.hisp) + ' Crockett · ' +
+    'Asian voters ' + PREF.asian + '/' + (100-PREF.asian) + ' Crockett' +
+    '';
+}
+
+function _fmtRow(v,p){ return v.toLocaleString() + ' (' + (p*100).toFixed(1) + '%)'; }
+
+function _sumFor(county){
+  var c=0,t=0;
+  for(var i=0;i<DATA.length;i++){
+    var d=DATA[i];
+    if(county && d.county!==county) continue;
+    c += d.crockett_votes;
+    t += d.talarico_votes;
+  }
+  var tot=c+t;
+  return {c:c,t:t,tot:tot,cs:tot?c/tot:0};
+}
+
+function updateTotalsUI(){
+  // Prefer statewide totals (all counties with turnout + census), fallback to 3-county precinct sum.
+  var useState = STATEWIDE_TOTALS && STATEWIDE_TOTALS.tot && STATEWIDE_TOTALS.tot>0;
+  var tot = useState ? STATEWIDE_TOTALS : _sumFor(null);
+  var sc=tot.cs, st=1-sc;
+  var e;
+
+  // Header scope + counts
+  var tt=document.getElementById('totTitle');
+  var ts=document.getElementById('totScope');
+  var tv=document.getElementById('totVotesLabel');
+  if(tt) tt.textContent = useState ? 'All-Counties Total' : 'Three-County Total';
+  if(ts) ts.textContent = useState ? ('Counties with turnout: ' + (tot.counties||0).toLocaleString()) : 'Dallas + Harris + Travis';
+  if(tv) tv.textContent = (tot.tot||0).toLocaleString();
+
+  e=document.getElementById('totSegC'); if(e) e.style.width=(sc*100).toFixed(1)+'%';
+  e=document.getElementById('totSegT'); if(e) e.style.width=(st*100).toFixed(1)+'%';
+  e=document.getElementById('totCBar'); if(e) e.style.width=(sc*100).toFixed(1)+'%';
+  e=document.getElementById('totTBar'); if(e) e.style.width=(st*100).toFixed(1)+'%';
+  e=document.getElementById('totCPct'); if(e) e.textContent=(sc*100).toFixed(1)+'%';
+  e=document.getElementById('totTPct'); if(e) e.textContent=(st*100).toFixed(1)+'%';
+  e=document.getElementById('totCVotes'); if(e) e.textContent=(tot.c||0).toLocaleString()+' votes';
+  e=document.getElementById('totTVotes'); if(e) e.textContent=(tot.t||0).toLocaleString()+' votes';
+
+  var rowC=document.getElementById('rowC'), rowT=document.getElementById('rowT');
+  var chkC=document.getElementById('chkC'), chkT=document.getElementById('chkT');
+  if(rowC && rowT && chkC && chkT){
+    rowC.classList.remove('winner-c','winner-t');
+    rowT.classList.remove('winner-c','winner-t');
+    chkC.textContent=''; chkT.textContent='';
+    if((tot.c||0) >= (tot.t||0)){ rowC.classList.add('winner-c'); chkC.textContent='✓'; }
+    else { rowT.classList.add('winner-t'); chkT.textContent='✓'; }
+  }
+
+  // Keep the three county cards as precinct-based (vote-center aggregates)
+  var d=_sumFor('Dallas'), h=_sumFor('Harris'), t=_sumFor('Travis');
+  function setCounty(prefix, s){
+    var cs=s.cs, ts=1-cs;
+    var e=document.getElementById(prefix+'SegC'); if(e) e.style.width=(cs*100).toFixed(1)+'%';
+    e=document.getElementById(prefix+'SegT'); if(e) e.style.width=(ts*100).toFixed(1)+'%';
+    e=document.getElementById(prefix+'CText'); if(e) e.textContent=_fmtRow(s.c, cs);
+    e=document.getElementById(prefix+'TText'); if(e) e.textContent=_fmtRow(s.t, ts);
+  }
+  setCounty('d', d);
+  setCounty('h', h);
+  setCounty('t', t);
+}
+
+function _tooltipHTML(d){
+  return '<div class="tt-name">' + d.name + '</div>' +
+    '<div class="tt-sub">' + d.county + ' County</div>' +
+    '<div class="tt-row"><span style="color:#c45a20;font-weight:600">Crockett</span><span style="font-weight:700">' + d.crockett_votes.toLocaleString() + ' (' + Math.round(d.crockett_share*100) + '%)</span></div>' +
+    '<div class="tt-row"><span style="color:#1a7a5c;font-weight:600">Talarico</span><span style="font-weight:700">' + d.talarico_votes.toLocaleString() + ' (' + Math.round(d.talarico_share*100) + '%)</span></div>' +
+    '<div class="tt-bar"><div class="tt-bar-c" style="width:' + (d.crockett_share*100) + '%"></div><div class="tt-bar-t" style="width:' + (d.talarico_share*100) + '%"></div></div>' +
+    '<div class="tt-demo">Black ' + Math.round(d.pct_black*100) + '% · White ' + Math.round(d.pct_white*100) + '% · Hisp ' + Math.round(d.pct_hispanic*100) + '% · Asian ' + Math.round(d.pct_asian*100) + '%</div>';
+}
+
+function updateMarkers(){
+  if(typeof markers === 'undefined') return;
+  for(var k in markers){
+    if(!markers.hasOwnProperty(k)) continue;
+    var obj = markers[k];
+    var d = obj.data;
+    var cs = d.crockett_share;
+    var m = (cs*2 - 1);
+    var fillColor = _colorByMargin(m);
+    var strokeColor = _darken(fillColor, 0.65);
+    obj.marker.setStyle({fillColor:fillColor, color:strokeColor, fillOpacity:_opacityByMargin(m)});
+    obj.marker.setTooltipContent(_tooltipHTML(d));
+  }
+}
+
+
+// ── COUNTY CHOROPLETH (Texas counties) ─────────────────────────────────────
+var countyLayer = null;
+var countyGeo = null;
+
+function _countyFillStyle(fips){
+  var r = COUNTY_BY_FIPS && COUNTY_BY_FIPS[fips];
+  if(!r || r.cShare==null) return {fillColor:'#d1d5db', fillOpacity:0.15, color:'#c7cbd1', weight:0.8};
+  var cs=r.cShare;
+  var m = (cs*2 - 1);
+  var fillColor = _colorByMargin(m);
+  return {
+    fillColor: fillColor,
+    fillOpacity: _opacityByMargin(m),
+    color: '#c7cbd1',
+    weight: 0.9
+  };
+}
+
+function _countyTooltipHTML(fips, featName){
+  var r = COUNTY_BY_FIPS && COUNTY_BY_FIPS[fips];
+  var name = featName || (r ? r.county : 'County');
+  if(!r || r.cShare==null){
+    return '<div class="tt-name">' + name + '</div><div class="tt-sub">No model</div>';
+  }
+  var cs=r.cShare, ts=1-cs;
+  return '<div class="tt-name">' + name + '</div>' +
+    '<div class="tt-sub">Early votes ' + (r.early||0).toLocaleString() + (r.src==='precinct' ? ' · precinct override' : '') + '</div>' +
+    '<div class="tt-row"><span style="color:#c45a20;font-weight:600">Crockett</span><span style="font-weight:700">' + (r.cVotes||0).toLocaleString() + ' (' + Math.round(cs*100) + '%)</span></div>' +
+    '<div class="tt-row"><span style="color:#1a7a5c;font-weight:600">Talarico</span><span style="font-weight:700">' + (r.tVotes||0).toLocaleString() + ' (' + Math.round(ts*100) + '%)</span></div>' +
+    '<div class="tt-bar"><div class="tt-bar-c" style="width:' + (cs*100) + '%"></div><div class="tt-bar-t" style="width:' + (ts*100) + '%"></div></div>';
+}
+
+async function loadCountyGeo(){
+  if(!map) return;
+  try{
+    var url='https://cdn.jsdelivr.net/gh/plotly/datasets@master/geojson-counties-fips.json';
+    var r=await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var gj=await r.json();
+    var feats=[];
+    for(var i=0;i<gj.features.length;i++){
+      var f=gj.features[i];
+      var id=String(f.id||'');
+      if(id.startsWith('48')) feats.push(f);
+    }
+    countyGeo={type:'FeatureCollection', features:feats};
+    map.createPane('counties');
+    map.getPane('counties').style.zIndex = 250;
+
+    countyLayer = L.geoJSON(countyGeo, {
+      pane:'counties',
+      style:function(feat){ return _countyFillStyle(String(feat.id||'')); },
+      onEachFeature:function(feat, layer){
+        var fips=String(feat.id||'');
+        var featName = (feat.properties && (feat.properties.NAME || feat.properties.name)) || '';
+        layer.bindTooltip(_countyTooltipHTML(fips, featName), {className:'custom-tooltip', sticky:true, direction:'auto'});
+        layer.on('click', function(){
+          var s=document.getElementById('countySearch');
+          if(s){
+            s.value = featName;
+            updateCountyTable();
+          }
+        });
+      }
+    }).addTo(map);
+
+    updateCountyChoropleth();
+
+    // Final estimate counties layer (separate map)
+    if(finalMap && !finalCountyLayer){
+      finalMap.createPane('counties');
+      finalMap.getPane('counties').style.zIndex = 250;
+      finalCountyLayer = L.geoJSON(countyGeo, {
+        pane:'counties',
+        style:function(feat){ return _finalCountyFillStyle(String(feat.id||'')); },
+        onEachFeature:function(feat, layer){
+          var fips=String(feat.id||'');
+          var featName = (feat.properties && (feat.properties.NAME || feat.properties.name)) || '';
+          layer.bindTooltip(_finalCountyTooltipHTML(fips, featName), {className:'custom-tooltip', sticky:true, direction:'auto'});
+          layer.on('click', function(){
+            var s=document.getElementById('finalCountySearch');
+            if(s){
+              s.value = featName;
+              updateFinalCountyTable();
+            }
+          });
+        }
+      }).addTo(finalMap);
+      updateFinalCountyChoropleth();
+    }
+
+  }catch(e){
+    console.error('County geo load failed', e);
+  }
+}
+
+function updateCountyChoropleth(){
+  if(!countyLayer) return;
+  countyLayer.eachLayer(function(layer){
+    var fips=String(layer.feature.id||'');
+    layer.setStyle(_countyFillStyle(fips));
+    var featName = (layer.feature.properties && (layer.feature.properties.NAME || layer.feature.properties.name)) || '';
+    if(layer.setTooltipContent) layer.setTooltipContent(_countyTooltipHTML(fips, featName));
+  });
+}
+
+// ── COUNTY DEMOGRAPHIC MODEL (statewide) ─────────────────────────────────────
+var TURNOUT_DEFAULT = `
+County	Registered Voters	Number In Person	Cumulative In-Person Voters	Cumulative % In-Person	Cumulative By Mail Voters	Cumulative In-Person and Mail Voters	Cumulative Percent Early Voting	Voter Details Report
+HARRIS	2,702,952	3,614	29,242	1.08 %	691	29,933	1.11 %	CSV Download
+DALLAS	1,463,708	12,893	26,411	1.8 %	48	26,459	1.81 %	CSV Download
+TARRANT	1,306,427	6,025	23,723	1.82 %	462	24,185	1.85 %	CSV Download
+BEXAR	1,293,128	9,232	27,198	2.1 %	367	27,565	2.13 %	CSV Download
+TRAVIS	920,645	9,017	25,343	2.75 %	808	26,151	2.84 %	CSV Download
+COLLIN	752,502	0	2,172	0.29 %	0	2,172	0.29 %	CSV Download
+DENTON	644,341	3,685	6,805	1.06 %	31	6,836	1.06 %	CSV Download
+FORT BEND	567,664	0	0	0 %	0	0	0 %	CSV Download
+EL PASO	518,817	2,742	7,833	1.51 %	58	7,891	1.52 %	CSV Download
+MONTGOMERY	469,174	1,206	2,074	0.44 %	68	2,142	0.46 %	CSV Download
+WILLIAMSON	455,181	4	6,788	1.49 %	703	7,491	1.65 %	CSV Download
+HIDALGO	451,612	4,431	14,256	3.16 %	2	14,258	3.16 %	CSV Download
+BRAZORIA	254,533	1,355	3,890	1.53 %	69	3,959	1.56 %	CSV Download
+GALVESTON	246,657	1,109	3,284	1.33 %	206	3,490	1.41 %	CSV Download
+CAMERON	238,192	2,139	7,108	2.98 %	130	7,238	3.04 %	CSV Download
+BELL	234,576	0	2,419	1.03 %	0	2,419	1.03 %	CSV Download
+NUECES	216,123	0	0	0 %	0	0	0 %	CSV Download
+LUBBOCK	199,184	839	2,471	1.24 %	99	2,570	1.29 %	CSV Download
+HAYS	193,013	1,626	4,618	2.39 %	11	4,629	2.4 %	CSV Download
+SMITH	160,066	0	1,285	0.8 %	75	1,360	0.85 %	CSV Download
+MCLENNAN	158,055	610	1,736	1.1 %	49	1,785	1.13 %	CSV Download
+ELLIS	152,671	0	1,639	1.07 %	5	1,644	1.08 %	CSV Download
+COMAL	147,503	633	1,220	0.83 %	108	1,328	0.9 %	CSV Download
+WEBB	146,897	1,797	6,515	4.44 %	29	6,544	4.45 %	CSV Download
+JEFFERSON	146,331	1,025	3,229	2.21 %	55	3,284	2.24 %	CSV Download
+BRAZOS	138,990	550	1,468	1.06 %	49	1,517	1.09 %	CSV Download
+JOHNSON	132,109	399	1,097	0.83 %	4	1,101	0.83 %	CSV Download
+PARKER	129,537	323	563	0.43 %	53	616	0.48 %	CSV Download
+GUADALUPE	128,124	0	973	0.76 %	13	986	0.77 %	CSV Download
+KAUFMAN	113,504	527	1,062	0.94 %	10	1,072	0.94 %	CSV Download
+GRAYSON	100,887	276	796	0.79 %	0	796	0.79 %	CSV Download
+RANDALL	100,698	209	561	0.56 %	103	664	0.66 %	CSV Download
+MIDLAND	97,651	186	513	0.53 %	8	521	0.53 %	CSV Download
+ROCKWALL	90,726	358	1,016	1.12 %	43	1,059	1.17 %	CSV Download
+ECTOR	85,664	151	431	0.5 %	5	436	0.51 %	CSV Download
+TAYLOR	85,075	268	777	0.91 %	45	822	0.97 %	CSV Download
+WICHITA	77,505	200	553	0.71 %	38	591	0.76 %	CSV Download
+HUNT	74,838	177	491	0.66 %	45	536	0.72 %	CSV Download
+GREGG	73,217	379	1,000	1.37 %	52	1,052	1.44 %	CSV Download
+TOM GREEN	72,329	170	557	0.77 %	3	560	0.77 %	CSV Download
+BASTROP	62,653	388	736	1.17 %	132	868	1.39 %	CSV Download
+BOWIE	60,472	235	432	0.71 %	73	505	0.84 %	CSV Download
+HENDERSON	60,148	186	504	0.84 %	31	535	0.89 %	CSV Download
+POTTER	57,952	135	290	0.5 %	77	367	0.63 %	CSV Download
+WISE	57,826	75	274	0.47 %	19	293	0.51 %	CSV Download
+LIBERTY	57,715	127	391	0.68 %	27	418	0.72 %	CSV Download
+VICTORIA	57,085	158	431	0.76 %	0	431	0.76 %	CSV Download
+ORANGE	56,206	135	344	0.61 %	27	371	0.66 %	CSV Download
+ANGELINA	55,445	169	465	0.84 %	71	536	0.97 %	CSV Download
+HOOD	52,728	0	160	0.3 %	0	160	0.3 %	CSV Download
+HARRISON	47,042	184	524	1.11 %	16	540	1.15 %	CSV Download
+CORYELL	45,909	129	408	0.89 %	23	431	0.94 %	CSV Download
+SAN PATRICIO	45,066	0	463	1.03 %	0	463	1.03 %	CSV Download
+WALLER	44,615	130	383	0.86 %	0	383	0.86 %	CSV Download
+HARDIN	43,555	71	207	0.48 %	0	207	0.48 %	CSV Download
+POLK	43,352	62	122	0.28 %	22	144	0.33 %	CSV Download
+VAN ZANDT	42,052	69	194	0.46 %	0	194	0.46 %	CSV Download
+KENDALL	39,850	137	322	0.81 %	15	337	0.85 %	CSV Download
+WILSON	39,755	0	0	0 %	87	87	0.22 %	CSV Download
+NACOGDOCHES	39,731	187	513	1.29 %	51	564	1.42 %	CSV Download
+BURNET	39,586	194	456	1.15 %	1	457	1.15 %	CSV Download
+MEDINA	39,520	0	271	0.69 %	43	314	0.79 %	CSV Download
+KERR	39,293	130	386	0.98 %	0	386	0.98 %	CSV Download
+WALKER	38,969	125	327	0.84 %	15	342	0.88 %	CSV Download
+CHAMBERS	38,164	63	200	0.52 %	0	200	0.52 %	CSV Download
+MAVERICK	36,539	0	0	0 %	0	0	0 %	CSV Download
+STARR	36,051	1,195	2,559	7.1 %	20	2,579	7.15 %	CSV Download
+WOOD	35,376	0	136	0.38 %	5	141	0.4 %	CSV Download
+RUSK	34,313	72	230	0.67 %	26	256	0.75 %	CSV Download
+NAVARRO	33,638	0	158	0.47 %	0	158	0.47 %	CSV Download
+LAMAR	33,012	82	266	0.81 %	0	266	0.81 %	CSV Download
+CHEROKEE	32,215	87	255	0.79 %	5	260	0.81 %	CSV Download
+ATASCOSA	32,209	96	310	0.96 %	40	350	1.09 %	CSV Download
+UPSHUR	30,686	60	147	0.48 %	17	164	0.53 %	CSV Download
+ANDERSON	30,678	76	217	0.71 %	0	217	0.71 %	CSV Download
+COOKE	30,493	54	110	0.36 %	20	130	0.43 %	CSV Download
+VAL VERDE	30,490	162	550	1.8 %	51	601	1.97 %	CSV Download
+HILL	27,498	69	185	0.67 %	3	188	0.68 %	CSV Download
+CALDWELL	27,268	175	544	2 %	29	573	2.1 %	CSV Download
+WHARTON	26,568	81	209	0.79 %	0	209	0.79 %	CSV Download
+ERATH	26,306	48	151	0.57 %	10	161	0.61 %	CSV Download
+JIM WELLS	25,864	246	833	3.22 %	0	833	3.22 %	CSV Download
+WASHINGTON	25,667	87	280	1.09 %	15	295	1.15 %	CSV Download
+BROWN	25,461	56	102	0.4 %	1	103	0.4 %	CSV Download
+HOPKINS	25,317	76	195	0.77 %	0	195	0.77 %	CSV Download
+FANNIN	24,815	0	68	0.27 %	0	68	0.27 %	CSV Download
+JASPER	24,411	0	123	0.5 %	13	136	0.56 %	CSV Download
+AUSTIN	22,371	42	131	0.59 %	14	145	0.65 %	CSV Download
+MATAGORDA	22,085	90	219	0.99 %	8	227	1.03 %	CSV Download
+GILLESPIE	21,928	0	135	0.62 %	34	169	0.77 %	CSV Download
+CASS	21,620	64	146	0.68 %	2	148	0.68 %	CSV Download
+GRIMES	21,519	46	124	0.58 %	1	125	0.58 %	CSV Download
+SAN JACINTO	20,745	33	57	0.27 %	9	66	0.32 %	CSV Download
+PALO PINTO	20,521	43	94	0.46 %	5	99	0.48 %	CSV Download
+ARANSAS	19,411	67	142	0.73 %	13	155	0.8 %	CSV Download
+BANDERA	19,234	64	165	0.86 %	9	174	0.9 %	CSV Download
+LLANO	18,267	63	175	0.96 %	29	204	1.12 %	CSV Download
+FAYETTE	18,167	49	128	0.7 %	38	166	0.91 %	CSV Download
+HALE	18,103	30	108	0.6 %	0	108	0.6 %	CSV Download
+TITUS	17,979	56	109	0.61 %	11	120	0.67 %	CSV Download
+KLEBERG	17,784	153	446	2.51 %	41	487	2.74 %	CSV Download
+PANOLA	17,755	36	93	0.52 %	13	106	0.6 %	CSV Download
+UVALDE	17,599	129	511	2.9 %	32	543	3.09 %	CSV Download
+LAMPASAS	17,188	55	179	1.04 %	0	179	1.04 %	CSV Download
+MILAM	17,179	48	48	0.28 %	6	54	0.31 %	CSV Download
+HOWARD	16,618	33	90	0.54 %	8	98	0.59 %	CSV Download
+SHELBY	16,329	24	48	0.29 %	1	49	0.3 %	CSV Download
+MONTAGUE	15,522	20	60	0.39 %	6	66	0.43 %	CSV Download
+BEE	15,491	50	238	1.54 %	39	277	1.79 %	CSV Download
+TYLER	14,814	25	68	0.46 %	3	71	0.48 %	CSV Download
+COLORADO	14,523	41	134	0.92 %	31	165	1.14 %	CSV Download
+LAVACA	14,399	0	32	0.22 %	18	50	0.35 %	CSV Download
+LIMESTONE	14,376	47	152	1.06 %	8	160	1.11 %	CSV Download
+HOCKLEY	14,077	26	60	0.43 %	1	61	0.43 %	CSV Download
+BURLESON	13,967	23	83	0.59 %	15	98	0.7 %	CSV Download
+HOUSTON	13,691	27	113	0.83 %	19	132	0.96 %	CSV Download
+BOSQUE	13,504	22	78	0.58 %	5	83	0.61 %	CSV Download
+FREESTONE	13,398	41	129	0.96 %	4	133	0.99 %	CSV Download
+HUTCHINSON	13,169	19	58	0.44 %	5	63	0.48 %	CSV Download
+GONZALES	13,160	43	122	0.93 %	10	132	1 %	CSV Download
+CALHOUN	12,841	38	126	0.98 %	2	128	1 %	CSV Download
+YOUNG	12,672	9	44	0.35 %	0	44	0.35 %	CSV Download
+ROBERTSON	12,589	43	105	0.83 %	4	109	0.87 %	CSV Download
+LEON	12,551	7	7	0.06 %	0	7	0.06 %	CSV Download
+EASTLAND	12,510	0	15	0.12 %	8	23	0.18 %	CSV Download
+TRINITY	12,255	27	104	0.85 %	0	104	0.85 %	CSV Download
+GRAY	12,112	2	9	0.07 %	8	17	0.14 %	CSV Download
+LEE	12,068	39	86	0.71 %	4	90	0.75 %	CSV Download
+WILLACY	11,567	123	395	3.41 %	0	395	3.41 %	CSV Download
+DEWITT	11,480	0	53	0.46 %	0	53	0.46 %	CSV Download
+BLANCO	11,110	47	137	1.23 %	3	140	1.26 %	CSV Download
+JONES	10,967	16	37	0.34 %	20	57	0.52 %	CSV Download
+FALLS	10,665	31	62	0.58 %	9	71	0.67 %	CSV Download
+ANDREWS	10,637	18	47	0.44 %	0	47	0.44 %	CSV Download
+GAINES	10,574	4	25	0.24 %	1	26	0.25 %	CSV Download
+CALLAHAN	10,371	15	43	0.41 %	2	45	0.43 %	CSV Download
+COMANCHE	10,226	8	42	0.41 %	0	42	0.41 %	CSV Download
+MOORE	10,080	18	39	0.39 %	4	43	0.43 %	CSV Download
+JACKSON	9,914	21	49	0.49 %	1	50	0.5 %	CSV Download
+FRIO	9,584	92	337	3.52 %	0	337	3.52 %	CSV Download
+RAINS	9,549	18	65	0.68 %	0	65	0.68 %	CSV Download
+NEWTON	9,447	12	40	0.42 %	0	40	0.42 %	CSV Download
+SCURRY	9,226	14	14	0.15 %	1	15	0.16 %	CSV Download
+NOLAN	8,746	0	34	0.39 %	7	41	0.47 %	CSV Download
+MORRIS	8,731	29	81	0.93 %	3	84	0.96 %	CSV Download
+DEAF SMITH	8,722	12	36	0.41 %	4	40	0.46 %	CSV Download
+RED RIVER	8,547	15	39	0.46 %	6	45	0.53 %	CSV Download
+MADISON	8,436	17	47	0.56 %	0	47	0.56 %	CSV Download
+CAMP	8,424	22	71	0.84 %	14	85	1.01 %	CSV Download
+SABINE	8,332	16	28	0.34 %	5	33	0.4 %	CSV Download
+PECOS	8,319	41	123	1.48 %	2	125	1.5 %	CSV Download
+CLAY	8,220	16	39	0.47 %	2	41	0.5 %	CSV Download
+KARNES	8,210	24	63	0.77 %	19	82	1 %	CSV Download
+WILBARGER	8,192	0	35	0.43 %	20	55	0.67 %	CSV Download
+ZAPATA	8,119	254	254	3.13 %	1	255	3.14 %	CSV Download
+REEVES	7,880	116	235	2.98 %	0	235	2.98 %	CSV Download
+DUVAL	7,839	74	264	3.37 %	4	268	3.42 %	CSV Download
+MARION	7,759	18	58	0.75 %	0	58	0.75 %	CSV Download
+FRANKLIN	7,697	10	31	0.4 %	10	41	0.53 %	CSV Download
+LAMB	7,676	12	20	0.26 %	0	20	0.26 %	CSV Download
+LIVE OAK	7,663	0	18	0.23 %	10	28	0.37 %	CSV Download
+SOMERVELL	7,561	0	27	0.36 %	1	28	0.37 %	CSV Download
+ZAVALA	7,513	90	369	4.91 %	0	369	4.91 %	CSV Download
+BREWSTER	7,018	0	98	1.4 %	31	129	1.84 %	CSV Download
+ARCHER	7,005	9	33	0.47 %	0	33	0.47 %	CSV Download
+WARD	6,946	7	17	0.24 %	12	29	0.42 %	CSV Download
+RUNNELS	6,748	3	19	0.28 %	4	23	0.34 %	CSV Download
+DIMMIT	6,550	0	151	2.31 %	48	199	3.04 %	CSV Download
+DAWSON	6,432	15	33	0.51 %	1	34	0.53 %	CSV Download
+TERRY	6,420	14	30	0.47 %	3	33	0.51 %	CSV Download
+HAMILTON	6,181	15	23	0.37 %	3	26	0.42 %	CSV Download
+COLEMAN	6,105	4	12	0.2 %	2	14	0.23 %	CSV Download
+SAN AUGUSTINE	5,988	25	110	1.84 %	5	115	1.92 %	CSV Download
+STEPHENS	5,834	1	22	0.38 %	0	22	0.38 %	CSV Download
+JACK	5,811	0	20	0.34 %	6	26	0.45 %	CSV Download
+GOLIAD	5,684	11	43	0.76 %	10	53	0.93 %	CSV Download
+MCCULLOCH	5,346	1	21	0.39 %	6	27	0.51 %	CSV Download
+OCHILTREE	5,129	2	10	0.19 %	2	12	0.23 %	CSV Download
+REFUGIO	4,895	0	53	1.08 %	5	58	1.18 %	CSV Download
+BROOKS	4,730	0	83	1.75 %	30	113	2.39 %	CSV Download
+PARMER	4,523	2	7	0.15 %	2	9	0.2 %	CSV Download
+MITCHELL	4,457	13	23	0.52 %	1	24	0.54 %	CSV Download
+LYNN	4,444	3	3	0.07 %	0	3	0.07 %	CSV Download
+PRESIDIO	4,395	111	407	9.26 %	1	408	9.28 %	CSV Download
+YOAKUM	4,323	0	9	0.21 %	1	10	0.23 %	CSV Download
+CARSON	4,214	2	10	0.24 %	4	14	0.33 %	CSV Download
+WINKLER	4,130	7	12	0.29 %	0	12	0.29 %	CSV Download
+DELTA	4,080	11	68	1.67 %	13	81	1.99 %	CSV Download
+LASALLE	4,044	64	270	6.68 %	58	328	8.11 %	CSV Download
+SWISHER	3,834	3	12	0.31 %	6	18	0.47 %	CSV Download
+SAN SABA	3,758	0	10	0.27 %	3	13	0.35 %	CSV Download
+CHILDRESS	3,668	0	0	0 %	0	0	0 %	CSV Download
+MILLS	3,596	5	19	0.53 %	0	19	0.53 %	CSV Download
+CROSBY	3,586	19	19	0.53 %	2	21	0.59 %	CSV Download
+FLOYD	3,578	0	0	0 %	0	0	0 %	CSV Download
+MARTIN	3,572	2	11	0.31 %	0	11	0.31 %	CSV Download
+CASTRO	3,488	4	16	0.46 %	0	16	0.46 %	CSV Download
+JIM HOGG	3,410	45	175	5.13 %	0	175	5.13 %	CSV Download
+HASKELL	3,405	8	10	0.29 %	2	12	0.35 %	CSV Download
+WHEELER	3,348	3	14	0.42 %	1	15	0.45 %	CSV Download
+KIMBLE	3,312	0	0	0 %	3	3	0.09 %	CSV Download
+MASON	3,266	12	23	0.7 %	4	27	0.83 %	CSV Download
+BAILEY	3,102	5	9	0.29 %	0	9	0.29 %	CSV Download
+HANSFORD	2,952	0	1	0.03 %	0	1	0.03 %	CSV Download
+DALLAM	2,774	1	5	0.18 %	0	5	0.18 %	CSV Download
+HARTLEY	2,768	5	6	0.22 %	1	7	0.25 %	CSV Download
+FISHER	2,741	3	15	0.55 %	0	15	0.55 %	CSV Download
+CRANE	2,732	4	14	0.51 %	0	14	0.51 %	CSV Download
+REAL	2,670	9	19	0.71 %	0	19	0.71 %	CSV Download
+COKE	2,508	0	2	0.08 %	6	8	0.32 %	CSV Download
+GARZA	2,493	5	7	0.28 %	0	7	0.28 %	CSV Download
+SHACKELFORD	2,459	0	5	0.2 %	0	5	0.2 %	CSV Download
+DONLEY	2,453	4	11	0.45 %	0	11	0.45 %	CSV Download
+BAYLOR	2,410	7	12	0.5 %	0	12	0.5 %	CSV Download
+SUTTON	2,282	2	15	0.66 %	3	18	0.79 %	CSV Download
+HEMPHILL	2,272	3	10	0.44 %	0	10	0.44 %	CSV Download
+HARDEMAN	2,269	4	6	0.26 %	2	8	0.35 %	CSV Download
+KNOX	2,244	1	1	0.04 %	0	1	0.04 %	CSV Download
+CROCKETT	2,236	8	19	0.85 %	0	19	0.85 %	CSV Download
+KINNEY	2,197	20	102	4.64 %	3	105	4.78 %	CSV Download
+HUDSPETH	2,121	1	5	0.24 %	0	5	0.24 %	CSV Download
+UPTON	2,079	0	0	0 %	0	0	0 %	CSV Download
+COLLINGSWORTH	1,936	0	4	0.21 %	2	6	0.31 %	CSV Download
+LIPSCOMB	1,871	0	0	0 %	0	0	0 %	CSV Download
+HALL	1,835	0	0	0 %	1	1	0.05 %	CSV Download
+REAGAN	1,792	1	1	0.06 %	0	1	0.06 %	CSV Download
+SCHLEICHER	1,749	2	12	0.69 %	0	12	0.69 %	CSV Download
+CONCHO	1,748	0	4	0.23 %	3	7	0.4 %	CSV Download
+CULBERSON	1,703	10	33	1.94 %	0	33	1.94 %	CSV Download
+JEFF DAVIS	1,546	14	38	2.46 %	2	40	2.59 %	CSV Download
+COCHRAN	1,477	4	13	0.88 %	2	15	1.02 %	CSV Download
+MENARD	1,473	2	11	0.75 %	1	12	0.81 %	CSV Download
+EDWARDS	1,467	3	12	0.82 %	0	12	0.82 %	CSV Download
+ARMSTRONG	1,441	0	4	0.28 %	1	5	0.35 %	CSV Download
+OLDHAM	1,370	0	0	0 %	0	0	0 %	CSV Download
+DICKENS	1,363	0	3	0.22 %	1	4	0.29 %	CSV Download
+SHERMAN	1,333	0	0	0 %	0	0	0 %	CSV Download
+IRION	1,205	0	3	0.25 %	0	3	0.25 %	CSV Download
+THROCKMORTON	1,181	1	1	0.08 %	0	1	0.08 %	CSV Download
+BRISCOE	1,000	0	2	0.2 %	0	2	0.2 %	CSV Download
+STONEWALL	978	0	4	0.41 %	0	4	0.41 %	CSV Download
+COTTLE	965	0	10	1.04 %	0	10	1.04 %	CSV Download
+STERLING	903	0	1	0.11 %	0	1	0.11 %	CSV Download
+GLASSCOCK	842	0	4	0.48 %	1	5	0.59 %	CSV Download
+MOTLEY	838	0	1	0.12 %	1	2	0.24 %	CSV Download
+FOARD	788	1	4	0.51 %	1	5	0.63 %	CSV Download
+ROBERTS	718	0	0	0 %	0	0	0 %	CSV Download
+MCMULLEN	657	0	0	0 %	0	0	0 %	CSV Download
+TERRELL	614	0	3	0.49 %	0	3	0.49 %	CSV Download
+KENT	601	2	6	1 %	0	6	1 %	CSV Download
+BORDEN	468	0	0	0 %	0	0	0 %	CSV Download
+KENEDY	268	7	44	16.42 %	2	46	17.16 %	CSV Download
+KING	180	0	0	0 %	0	0	0 %	CSV Download
+LOVING	149	0	5	3.36 %	0	5	3.36 %	CSV Download
+`;
+var COUNTY_TURNOUT = [];
+var COUNTY_RACE = {};
+var STATEWIDE_TOTALS = null;
+var COUNTY_BY_FIPS = {};
+var COUNTY_SORT_COL = 'early';
+var COUNTY_SORT_DIR = -1;
+
+var FINAL_ELECTORATE_DEFAULT = 7200000;
+var FINAL_BASE_ELECT = {white:0.45, black:0.21, hisp:0.26, asian:0.04, other:0.04}; // "general dem electorate"
+var FINAL_TURNOUT_DEFAULTS = {white:18.1, black:21.1, hisp:23.8, asian:17.8, other:19.2};
+var FINAL_TURNOUT = {white:18.1, black:21.1, hisp:23.8, asian:17.8, other:19.2};
+var FINAL_SORT_COL = 'votes';
+var FINAL_SORT_DIR = -1;
+var FINAL_ROWS = [];
+var FINAL_BY_FIPS = {};
+var FINAL_TOTALS = null;
+
+
+function keyify(s){ return (s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function titleCaseCounty(s){
+  s = (s||'').toLowerCase().replace(/\b\w/g, function(m){return m.toUpperCase();});
+  // basic fixes
+  s = s.replace(/\bMc([a-z])/g, function(_,c){ return 'Mc'+c.toUpperCase(); });
+  s = s.replace(/\bDe([a-z])/g, function(_,c){ return 'De'+c.toUpperCase(); });
+  return s;
+}
+function _num(s){ return parseInt(String(s).replace(/,/g,''),10) || 0; }
+
+function parseTurnout(){
+  var ta=document.getElementById('turnoutRaw'); if(!ta) return;
+  var txt=ta.value||'';
+  var lines=txt.split(/\r?\n/);
+  var re=/^\s*([A-Z][A-Z ]+?)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s*%\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s*%/;
+  var out=[];
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i];
+    var m=line.match(re);
+    if(!m) continue;
+    var countyRaw=m[1].trim();
+    if(countyRaw==='COUNTY') continue;
+    var reg=_num(m[2]);
+    var early=_num(m[7]);
+    var earlyPct=parseFloat(m[8]);
+    out.push({key:keyify(countyRaw), county:titleCaseCounty(countyRaw), countyRaw:countyRaw, reg:reg, early:early, earlyPct:isNaN(earlyPct)?null:earlyPct});
+  }
+  // de-dupe by key
+  var seen={}; var ded=[];
+  for(var j=0;j<out.length;j++){ var k=out[j].key; if(seen[k]) continue; seen[k]=1; ded.push(out[j]); }
+  COUNTY_TURNOUT = ded;
+  var c=document.getElementById('turnoutParsedCount'); if(c) c.textContent = COUNTY_TURNOUT.length.toLocaleString();
+  updateCountyTable();
+}
+
+async function loadCountyRace(){
+  var st=document.getElementById('countyModelStatus');
+  try{
+    if(st) st.textContent='Loading Census P2…';
+    var url='https://api.census.gov/data/2020/dec/pl?get=NAME,P2_001N,P2_002N,P2_005N,P2_006N,P2_008N&for=county:*&in=state:48';
+    var r=await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var j=await r.json();
+    var race={};
+    for(var i=1;i<j.length;i++){
+      var name=j[i][0] || '';
+      var countyName=name.split(' County,')[0];
+      var key=keyify(countyName);
+      var total=_num(j[i][1]);
+      var hisp=_num(j[i][2]);
+      var white=_num(j[i][3]);
+      var black=_num(j[i][4]);
+      var asian=_num(j[i][5]);
+      var stc = String(j[i][6] || '');
+      var coc = String(j[i][7] || '');
+      stc = stc.padStart(2,'0');
+      coc = coc.padStart(3,'0');
+      var fips = stc + coc;
+      if(total<=0) continue;
+      var other = total - (hisp+white+black+asian);
+      if(other<0) other=0;
+      // Store base population shares; electorate reweighting is applied dynamically.
+      var base={
+        hisp: hisp/total,
+        white: white/total,
+        black: black/total,
+        asian: asian/total,
+        other: other/total
+      };
+      race[key]={
+        base: base,
+        counts:{hisp:hisp, white:white, black:black, asian:asian, other:other},
+        total:total,
+        name:countyName,
+        fips:fips
+      };
+    }
+    COUNTY_RACE=race;
+    if(st) st.textContent='Census P2 loaded';
+    updateCountyTable();
+  }catch(e){
+    if(st) st.textContent='Census load failed';
+    console.error(e);
+  }
+}
+
+function _threeCountyAgg(){
+  var agg={};
+  for(var i=0;i<DATA.length;i++){
+    var d=DATA[i];
+    var k=keyify(d.county);
+    if(!agg[k]) agg[k]={c:0,t:0,total:0};
+    agg[k].c += d.crockett_votes;
+    agg[k].t += d.talarico_votes;
+    agg[k].total += d.dem_total;
+  }
+  return agg;
+}
+
+function _countyRowModel(r, threeAgg){
+  var k=r.key;
+  var src='county';
+  var reg=r.reg, early=r.early, earlyPct=r.earlyPct;
+  var cShare=null, cVotes=null, tVotes=null;
+
+  if(threeAgg && threeAgg[k] && threeAgg[k].total>0 && (k==='DALLAS' || k==='HARRIS' || k==='TRAVIS')){
+    src='precinct';
+    early = threeAgg[k].total;
+    cVotes = threeAgg[k].c;
+    tVotes = threeAgg[k].t;
+    cShare = cVotes / early;
+    earlyPct = reg ? (early/reg)*100 : null;
+  } else {
+    var race = COUNTY_RACE[k];
+    if(race){
+      var b=PREF.black/100, w=PREF.white/100, h=PREF.hisp/100, a=PREF.asian/100;
+      // "other" assumed 50-50
+      var adj = electorateAdjust({white:race.base.white, black:race.base.black, hisp:race.base.hisp, asian:race.base.asian, other:race.base.other});
+      cShare = adj.black*b + adj.white*w + adj.hisp*h + adj.asian*a + adj.other*0.5;
+      cShare = _clamp01(cShare);
+      cVotes = Math.round(early*cShare);
+      tVotes = Math.max(0, early - cVotes);
+      if(earlyPct===null && reg) earlyPct = (early/reg)*100;
+    }
+  }
+  return {key:k, county:r.county, countyRaw:r.countyRaw, reg:reg, early:early, earlyPct:earlyPct, cShare:cShare, cVotes:cVotes, tVotes:tVotes, src:src};
+}
+
+function updateCountyTable(){
+  var tb=document.getElementById('ctb');
+  if(!tb) return;
+
+  if(!COUNTY_TURNOUT || COUNTY_TURNOUT.length===0){
+    tb.innerHTML='<tr><td colspan="8" style="padding:12px 14px;color:var(--txt3)">No turnout parsed.</td></tr>';
+    STATEWIDE_TOTALS = null;
+    COUNTY_BY_FIPS = {};
+    return;
+  }
+
+  var threeAgg=_threeCountyAgg();
+  var allRows=[];
+  var matched=0;
+  var totEarly=0, totC=0, totT=0, used=0;
+  var byFips={};
+
+  for(var i=0;i<COUNTY_TURNOUT.length;i++){
+    var r=COUNTY_TURNOUT[i];
+    var row=_countyRowModel(r, threeAgg);
+    allRows.push(row);
+
+    if(row.src==='precinct' || COUNTY_RACE[row.key]) matched++;
+
+    if(row.early!=null && row.cVotes!=null && row.tVotes!=null){
+      totEarly += row.early;
+      totC += row.cVotes;
+      totT += row.tVotes;
+      used += 1;
+      var race = COUNTY_RACE[row.key];
+      if(race && race.fips) byFips[race.fips] = row;
+    }
+  }
+
+  COUNTY_BY_FIPS = byFips;
+  STATEWIDE_TOTALS = (totEarly>0) ? {c:totC, t:totT, tot:(totC+totT), cs:(totC/totEarly), early:totEarly, counties:used} : null;
+
+  var dc=document.getElementById('demoMatchedCount'); if(dc) dc.textContent=matched.toLocaleString();
+
+  // Apply search filter AFTER computing totals.
+  var filter=(document.getElementById('countySearch').value||'').toLowerCase();
+  var rows=[];
+  for(var j=0;j<allRows.length;j++){
+    var rr=allRows[j];
+    if(filter){
+      var name=(rr.county||'').toLowerCase();
+      var raw=(rr.countyRaw||'').toLowerCase();
+      if(name.indexOf(filter)===-1 && raw.indexOf(filter)===-1) continue;
+    }
+    rows.push(rr);
+  }
+
+  rows.sort(function(a,b){
+    var c=COUNTY_SORT_COL;
+    var va, vb;
+    if(c==='county'){ va=a.county; vb=b.county; return COUNTY_SORT_DIR * va.localeCompare(vb); }
+    if(c==='reg'){ va=a.reg||0; vb=b.reg||0; }
+    else if(c==='early'){ va=a.early||0; vb=b.early||0; }
+    else if(c==='earlyPct'){ va=(a.earlyPct==null? -1 : a.earlyPct); vb=(b.earlyPct==null? -1 : b.earlyPct); }
+    else if(c==='cPct'){ va=(a.cShare==null? -1 : a.cShare); vb=(b.cShare==null? -1 : b.cShare); }
+    else if(c==='cVotes'){ va=a.cVotes||0; vb=b.cVotes||0; }
+    else if(c==='tVotes'){ va=a.tVotes||0; vb=b.tVotes||0; }
+    else { va=(a.cShare==null? -1 : a.cShare); vb=(b.cShare==null? -1 : b.cShare); }
+    return COUNTY_SORT_DIR * (va - vb);
+  });
+
+  var html='';
+  for(var k=0;k<rows.length;k++){
+    var r=rows[k];
+    var earlyStr = (r.early!=null) ? r.early.toLocaleString() : '—';
+    var regStr = (r.reg!=null) ? r.reg.toLocaleString() : '—';
+    var ep = (r.earlyPct!=null && isFinite(r.earlyPct)) ? (r.earlyPct.toFixed(2)+'%') : '—';
+    var cPct = (r.cShare!=null) ? (Math.round(r.cShare*100)+'%') : '—';
+    var cV = (r.cVotes!=null) ? r.cVotes.toLocaleString() : '—';
+    var tV = (r.tVotes!=null) ? r.tVotes.toLocaleString() : '—';
+    var bar = (r.cShare!=null)
+      ? '<div class="mb-wrap"><div class="mb-c" style="width:'+(r.cShare*100)+'%"></div><div class="mb-t" style="width:'+((1-r.cShare)*100)+'%"></div></div>'
+      : '<span style="color:var(--txt3)">—</span>';
+    var src = (r.src==='precinct') ? '<span class="county-src">precinct</span>' : '';
+    html += '<tr>' +
+      '<td>'+ r.county + src + '</td>' +
+      '<td class="num">'+ regStr + '</td>' +
+      '<td class="num">'+ earlyStr + '</td>' +
+      '<td class="num">'+ ep + '</td>' +
+      '<td class="num c-num">'+ cPct + '</td>' +
+      '<td class="num c-num">'+ cV + '</td>' +
+      '<td class="num t-num">'+ tV + '</td>' +
+      '<td class="mini-bar">'+ bar + '</td>' +
+    '</tr>';
+  }
+  tb.innerHTML = html;
+
+  // Keep banner + county fills in sync.
+  updateTotalsUI();
+  updateCountyChoropleth();
+}
+
+
+function _getFinalElectorateN(){
+  var el=document.getElementById('finalElectorate');
+  var v = el ? parseFloat(el.value) : FINAL_ELECTORATE_DEFAULT;
+  if(!isFinite(v) || v<0) v = FINAL_ELECTORATE_DEFAULT;
+  return v;
+}
+
+function _impliedElectorateFromTurnout(){
+  // raw_i = base_i * turnout_i  (in percent units); normalize to get voter composition.
+  var rw = FINAL_BASE_ELECT.white * FINAL_TURNOUT.white;
+  var rb = FINAL_BASE_ELECT.black * FINAL_TURNOUT.black;
+  var rh = FINAL_BASE_ELECT.hisp  * FINAL_TURNOUT.hisp;
+  var ra = FINAL_BASE_ELECT.asian * FINAL_TURNOUT.asian;
+  var ro = FINAL_BASE_ELECT.other * FINAL_TURNOUT.other;
+  var sum = rw+rb+rh+ra+ro;
+  if(!(sum>0)) sum=1;
+  return {
+    white: rw/sum,
+    black: rb/sum,
+    hisp:  rh/sum,
+    asian: ra/sum,
+    other: ro/sum,
+    overallTurnoutPct: sum // since base sums to 1, sum is overall turnout percent
+  };
+}
+
+function _largestRemainderIntPcts(pcts){
+  // pcts: {white,black,hisp,asian,other} in fractional units summing to 1
+  var keys=['white','black','hisp','asian','other'];
+  var exact=[], flo=[], frac=[];
+  var sumFlo=0;
+  for(var i=0;i<keys.length;i++){
+    var v = (pcts[keys[i]]||0)*100;
+    if(!isFinite(v) || v<0) v=0;
+    exact[i]=v;
+    flo[i]=Math.floor(v);
+    frac[i]=v - flo[i];
+    sumFlo += flo[i];
+  }
+  var rem = 100 - sumFlo;
+  // distribute remaining points to largest fractional parts
+  var order = keys.map(function(k, i){ return {i:i, f:frac[i]}; })
+                  .sort(function(a,b){ return (b.f-a.f) || (a.i-b.i); });
+  var add = new Array(keys.length).fill(0);
+  for(var j=0;j<rem;j++){
+    add[order[j % order.length].i] += 1;
+  }
+  var out={};
+  for(var i=0;i<keys.length;i++){
+    out[keys[i]] = flo[i] + add[i];
+  }
+  // safety: enforce exact sum
+  var s=0; for(var i=0;i<keys.length;i++) s += out[keys[i]];
+  if(s!==100){
+    // adjust other to fix any drift
+    out.other += (100 - s);
+  }
+  return out;
+}
+
+function _syncElectorateSlidersFromFinalTurnout(){
+  // Electorate (statewide) sliders are driven by turnout assumptions:
+  // implied_i ∝ base_i * turnout_i, normalized to 100%.
+  var implied = _impliedElectorateFromTurnout();
+  var ints = _largestRemainderIntPcts(implied);
+
+  var ew=document.getElementById('slEWhite'),
+      eb=document.getElementById('slEBlack'),
+      eh=document.getElementById('slEHisp'),
+      ea=document.getElementById('slEAsian');
+
+  if(ew) ew.value = ints.white;
+  if(eb) eb.value = ints.black;
+  if(eh) eh.value = ints.hisp;
+  if(ea) ea.value = ints.asian;
+
+  // Keep reset aligned with current turnout-driven implied electorate.
+  ELEC_DEFAULT_SLIDERS = {white:ints.white, black:ints.black, hisp:ints.hisp, asian:ints.asian};
+
+  // Update text immediately
+  updateElectorateUI(false);
+
+  // If we already have county turnout + base shares loaded, update targets/weights now.
+  if(COUNTY_TURNOUT && COUNTY_TURNOUT.length>0 && COUNTY_RACE){
+    _applyElectorateTargetsFromSliders('slEAsian');
+  } else {
+    // Seed target so initCountyModel's apply uses current slider positions
+    var ov = Math.max(0, 100 - (ints.white+ints.black+ints.hisp+ints.asian));
+    ELEC_TARGET = {white:ints.white/100, black:ints.black/100, hisp:ints.hisp/100, asian:ints.asian/100, other:ov/100};
+    ELEC_MODE = 'target';
+  }
+}
+
+
+
+function computeFinalEstimate(){
+  var tb=document.getElementById('ftb');
+  if(!tb) return;
+
+  FINAL_ROWS = [];
+  FINAL_BY_FIPS = {};
+  FINAL_TOTALS = null;
+
+  if(!COUNTY_TURNOUT || COUNTY_TURNOUT.length===0 || !COUNTY_RACE){
+    tb.innerHTML = '<tr><td colspan="8" style="padding:12px 14px;color:var(--txt3)">No turnout / Census data.</td></tr>';
+    updateFinalTotalsUI();
+    updateFinalCountyChoropleth();
+    return;
+  }
+
+  var N = _getFinalElectorateN();
+  var regTot=0;
+  for(var i=0;i<COUNTY_TURNOUT.length;i++){
+    var r=COUNTY_TURNOUT[i];
+    if(r && r.reg && r.reg>0) regTot += r.reg;
+  }
+  if(!(regTot>0)){
+    tb.innerHTML = '<tr><td colspan="8" style="padding:12px 14px;color:var(--txt3)">No registered voter totals.</td></tr>';
+    updateFinalTotalsUI();
+    updateFinalCountyChoropleth();
+    return;
+  }
+
+  var tW=FINAL_TURNOUT.white/100, tB=FINAL_TURNOUT.black/100, tH=FINAL_TURNOUT.hisp/100, tA=FINAL_TURNOUT.asian/100, tO=FINAL_TURNOUT.other/100;
+  var pW=PREF.white/100, pB=PREF.black/100, pH=PREF.hisp/100, pA=PREF.asian/100;
+
+  var totVotes=0, totC=0, totT=0, used=0;
+
+  for(var j=0;j<COUNTY_TURNOUT.length;j++){
+    var row=COUNTY_TURNOUT[j];
+    if(!row || !(row.reg>0)) continue;
+
+    var race = COUNTY_RACE[row.key];
+    if(!race || !race.base || !race.fips) continue;
+
+    var elect = N * (row.reg / regTot);
+
+    var base = race.base;
+    // Reweight county base demographics to the electorate space using the EXISTING electorate weights.
+    var adj = electorateAdjust({white:base.white, black:base.black, hisp:base.hisp, asian:base.asian, other:base.other});
+
+    var vW = elect * adj.white * tW;
+    var vB = elect * adj.black * tB;
+    var vH = elect * adj.hisp  * tH;
+    var vA = elect * adj.asian * tA;
+    var vO = elect * adj.other * tO;
+    var vTot = vW+vB+vH+vA+vO;
+    if(!(vTot>0)) vTot = 0;
+
+    var cVotes = vB*pB + vW*pW + vH*pH + vA*pA + vO*0.5;
+    var tVotes = vTot - cVotes;
+    var cShare = (vTot>0) ? (cVotes/vTot) : null;
+
+    var rOut = {
+      key: row.key,
+      county: row.county,
+      countyRaw: row.countyRaw,
+      reg: row.reg,
+      electorate: elect,
+      votes: vTot,
+      turnoutPct: (elect>0 ? (vTot/elect) : null),
+      cVotes: cVotes,
+      tVotes: tVotes,
+      cShare: cShare
+    };
+
+    FINAL_ROWS.push(rOut);
+    FINAL_BY_FIPS[race.fips] = rOut;
+
+    totVotes += vTot;
+    totC += cVotes;
+    totT += tVotes;
+    used += 1;
+  }
+
+  FINAL_TOTALS = (totVotes>0) ? {tot:totVotes, c:totC, t:totT, cs:(totC/totVotes), counties:used} : null;
+
+  updateFinalCountyTable();
+  updateFinalTotalsUI();
+  updateFinalCountyChoropleth();
+}
+
+function updateFinalTotalsUI(){
+  // turnout + implied electorate
+  var implied=_impliedElectorateFromTurnout();
+  var ew=document.getElementById('finalEWhite'), eb=document.getElementById('finalEBlack'), eh=document.getElementById('finalEHisp'), ea=document.getElementById('finalEAsian'), eo=document.getElementById('finalEOther');
+  var ot=document.getElementById('finalOverallTurnout');
+  if(ew) ew.textContent = Math.round(implied.white*100)+'%';
+  if(eb) eb.textContent = Math.round(implied.black*100)+'%';
+  if(eh) eh.textContent = Math.round(implied.hisp*100)+'%';
+  if(ea) ea.textContent = Math.round(implied.asian*100)+'%';
+  if(eo) eo.textContent = Math.round(implied.other*100)+'%';
+  if(ot) ot.textContent = implied.overallTurnoutPct.toFixed(1)+'%';
+
+  var label=document.getElementById('finalVotesLabel');
+  var segC=document.getElementById('finalSegC'), segT=document.getElementById('finalSegT');
+  var cPct=document.getElementById('finalCPct'), tPct=document.getElementById('finalTPct');
+  var cVotes=document.getElementById('finalCVotes'), tVotes=document.getElementById('finalTVotes');
+  var cBar=document.getElementById('finalCBar'), tBar=document.getElementById('finalTBar');
+  var rowC=document.getElementById('finalRowC'), rowT=document.getElementById('finalRowT');
+  var chkC=document.getElementById('finalChkC'), chkT=document.getElementById('finalChkT');
+
+  if(!FINAL_TOTALS || !(FINAL_TOTALS.tot>0)){
+    if(label) label.textContent='—';
+    if(cPct) cPct.textContent='—';
+    if(tPct) tPct.textContent='—';
+    if(cVotes) cVotes.textContent='—';
+    if(tVotes) tVotes.textContent='—';
+    if(segC) segC.style.width='50%';
+    if(segT) segT.style.width='50%';
+    if(cBar) cBar.style.width='50%';
+    if(tBar) tBar.style.width='50%';
+    if(rowC) rowC.classList.remove('winner-c');
+    if(rowT) rowT.classList.remove('winner-t');
+    if(chkC) chkC.textContent='';
+    if(chkT) chkT.textContent='';
+    return;
+  }
+
+  var cs=FINAL_TOTALS.cs, ts=1-cs;
+  if(label) label.textContent = Math.round(FINAL_TOTALS.tot).toLocaleString();
+
+  if(segC) segC.style.width = (cs*100)+'%';
+  if(segT) segT.style.width = (ts*100)+'%';
+
+  if(cBar) cBar.style.width = (cs*100)+'%';
+  if(tBar) tBar.style.width = (ts*100)+'%';
+
+  if(cPct) cPct.textContent = (cs*100).toFixed(1)+'%';
+  if(tPct) tPct.textContent = (ts*100).toFixed(1)+'%';
+
+  if(cVotes) cVotes.textContent = Math.round(FINAL_TOTALS.c).toLocaleString() + ' votes';
+  if(tVotes) tVotes.textContent = Math.round(FINAL_TOTALS.t).toLocaleString() + ' votes';
+
+  var cWins = cs>=0.5;
+  if(rowC) rowC.classList.toggle('winner-c', cWins);
+  if(rowT) rowT.classList.toggle('winner-t', !cWins);
+  if(chkC) chkC.textContent = cWins ? '✓' : '';
+  if(chkT) chkT.textContent = (!cWins) ? '✓' : '';
+}
+
+function updateFinalCountyTable(){
+  var tb=document.getElementById('ftb'); if(!tb) return;
+  if(!FINAL_ROWS || FINAL_ROWS.length===0){
+    tb.innerHTML='<tr><td colspan="8" style="padding:12px 14px;color:var(--txt3)">No final estimate rows.</td></tr>';
+    return;
+  }
+
+  var filter=(document.getElementById('finalCountySearch').value||'').toLowerCase();
+  var rows=[];
+  for(var i=0;i<FINAL_ROWS.length;i++){
+    var r=FINAL_ROWS[i];
+    if(filter){
+      var name=(r.county||'').toLowerCase();
+      var raw=(r.countyRaw||'').toLowerCase();
+      if(name.indexOf(filter)===-1 && raw.indexOf(filter)===-1) continue;
+    }
+    rows.push(r);
+  }
+
+  rows.sort(function(a,b){
+    var c=FINAL_SORT_COL;
+    var va,vb;
+    if(c==='county'){ va=a.county; vb=b.county; return FINAL_SORT_DIR * va.localeCompare(vb); }
+    if(c==='elect'){ va=a.electorate||0; vb=b.electorate||0; }
+    else if(c==='votes'){ va=a.votes||0; vb=b.votes||0; }
+    else if(c==='turnout'){ va=(a.turnoutPct==null? -1 : a.turnoutPct); vb=(b.turnoutPct==null? -1 : b.turnoutPct); }
+    else if(c==='cPct'){ va=(a.cShare==null? -1 : a.cShare); vb=(b.cShare==null? -1 : b.cShare); }
+    else if(c==='cVotes'){ va=a.cVotes||0; vb=b.cVotes||0; }
+    else if(c==='tVotes'){ va=a.tVotes||0; vb=b.tVotes||0; }
+    else { va=a.votes||0; vb=b.votes||0; }
+    return FINAL_SORT_DIR * (va - vb);
+  });
+
+  var html='';
+  for(var k=0;k<rows.length;k++){
+    var r=rows[k];
+    var electStr = (r.electorate!=null) ? Math.round(r.electorate).toLocaleString() : '—';
+    var votesStr = (r.votes!=null) ? Math.round(r.votes).toLocaleString() : '—';
+    var tp = (r.turnoutPct!=null && isFinite(r.turnoutPct)) ? ( (r.turnoutPct*100).toFixed(1)+'%' ) : '—';
+    var cPct = (r.cShare!=null) ? (Math.round(r.cShare*100)+'%') : '—';
+    var cV = (r.cVotes!=null) ? Math.round(r.cVotes).toLocaleString() : '—';
+    var tV = (r.tVotes!=null) ? Math.round(r.tVotes).toLocaleString() : '—';
+    var bar = (r.cShare!=null)
+      ? '<div class="mb-wrap"><div class="mb-c" style="width:'+(r.cShare*100)+'%"></div><div class="mb-t" style="width:'+((1-r.cShare)*100)+'%"></div></div>'
+      : '<span style="color:var(--txt3)">—</span>';
+    html += '<tr>' +
+      '<td>'+ r.county + '</td>' +
+      '<td class="num">'+ electStr + '</td>' +
+      '<td class="num">'+ votesStr + '</td>' +
+      '<td class="num">'+ tp + '</td>' +
+      '<td class="num c-num">'+ cPct + '</td>' +
+      '<td class="num c-num">'+ cV + '</td>' +
+      '<td class="num t-num">'+ tV + '</td>' +
+      '<td class="mini-bar">'+ bar + '</td>' +
+    '</tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function _finalCountyFillStyle(fips){
+  var r = FINAL_BY_FIPS && FINAL_BY_FIPS[fips];
+  if(!r || r.cShare==null) return {fillColor:'#d1d5db', fillOpacity:0.15, color:'#c7cbd1', weight:0.8};
+  var cs=r.cShare;
+  var m = (cs*2 - 1);
+  var fillColor = _colorByMargin(m);
+  return { fillColor:fillColor, fillOpacity:_opacityByMargin(m), color:'#c7cbd1', weight:0.9 };
+}
+
+function _finalCountyTooltipHTML(fips, featName){
+  var r = FINAL_BY_FIPS && FINAL_BY_FIPS[fips];
+  var name = featName || (r ? r.county : 'County');
+  if(!r || r.cShare==null){
+    return '<div class="tt-name">' + name + '</div><div class="tt-sub">No final estimate</div>';
+  }
+  var cs=r.cShare, ts=1-cs;
+  return '<div class="tt-name">' + name + '</div>' +
+    '<div class="tt-sub">Electorate ' + Math.round(r.electorate).toLocaleString() + ' · projected votes ' + Math.round(r.votes).toLocaleString() + '</div>' +
+    '<div class="tt-row"><span style="color:#c45a20;font-weight:600">Crockett</span><span style="font-weight:700">' + Math.round(r.cVotes).toLocaleString() + ' (' + Math.round(cs*100) + '%)</span></div>' +
+    '<div class="tt-row"><span style="color:#1a7a5c;font-weight:600">Talarico</span><span style="font-weight:700">' + Math.round(r.tVotes).toLocaleString() + ' (' + Math.round(ts*100) + '%)</span></div>' +
+    '<div class="tt-bar"><div class="tt-bar-c" style="width:' + (cs*100) + '%"></div><div class="tt-bar-t" style="width:' + (ts*100) + '%"></div></div>';
+}
+
+function updateFinalCountyChoropleth(){
+  if(!finalCountyLayer) return;
+  finalCountyLayer.eachLayer(function(layer){
+    var fips=String(layer.feature.id||'');
+    layer.setStyle(_finalCountyFillStyle(fips));
+    var featName = (layer.feature.properties && (layer.feature.properties.NAME || layer.feature.properties.name)) || '';
+    if(layer.setTooltipContent) layer.setTooltipContent(_finalCountyTooltipHTML(fips, featName));
+  });
+}
+
+function hookFinalEstimateControls(){
+  function bind(sl, key, outId){
+    if(!sl) return;
+    var out=document.getElementById(outId);
+    function on(){
+      var v=parseFloat(sl.value);
+      if(!isFinite(v)) v=0;
+      FINAL_TURNOUT[key]=v;
+      if(out) out.textContent = v.toFixed(1);
+
+      // Turnout assumptions drive the implied primary electorate (see electorate sliders).
+      if(typeof _syncElectorateSlidersFromFinalTurnout === 'function'){
+        _syncElectorateSlidersFromFinalTurnout();
+      }
+
+      if(_rafPending) return;
+      _rafPending=true;
+      requestAnimationFrame(function(){ _rafPending=false; refreshAll(); });
+    }
+    sl.addEventListener('input', on);
+    sl.addEventListener('change', on);
+  }
+  bind(document.getElementById('slTWhite'),'white','vTWhite');
+  bind(document.getElementById('slTBlack'),'black','vTBlack');
+  bind(document.getElementById('slTHisp'),'hisp','vTHisp');
+  bind(document.getElementById('slTAsian'),'asian','vTAsian');
+  bind(document.getElementById('slTOther'),'other','vTOther');
+
+  var el=document.getElementById('finalElectorate');
+  var vlab=document.getElementById('vFinalElectN');
+  function _syncFinalElectorateLabel(){
+    if(!el || !vlab) return;
+    var v=parseFloat(el.value);
+    if(!isFinite(v) || v<0) v = FINAL_ELECTORATE_DEFAULT;
+    vlab.textContent = (v/1000000).toFixed(1);
+  }
+  if(el){
+    _syncFinalElectorateLabel();
+    el.addEventListener('input', function(){
+      _syncFinalElectorateLabel();
+      if(_rafPending) return;
+      _rafPending=true;
+      requestAnimationFrame(function(){ _rafPending=false; computeFinalEstimate(); });
+    });
+  }
+
+  var s=document.getElementById('finalCountySearch');
+  if(s) s.addEventListener('input', function(){ updateFinalCountyTable(); });
+
+  var ths=document.querySelectorAll('#finalCountyTblWrap .county-tbl thead th[data-fcol]');
+  for(var i=0;i<ths.length;i++){
+    (function(th){
+      th.addEventListener('click', function(){
+        var c = th.getAttribute('data-fcol');
+        if(FINAL_SORT_COL===c) FINAL_SORT_DIR *= -1;
+        else { FINAL_SORT_COL=c; FINAL_SORT_DIR=-1; }
+        updateFinalCountyTable();
+      });
+    })(ths[i]);
+  }
+
+  // Initialize turnout-driven electorate on load
+  if(typeof _syncElectorateSlidersFromFinalTurnout === 'function') _syncElectorateSlidersFromFinalTurnout();
+}
+
+function hookCountyTableSort(){
+  var ths=document.querySelectorAll('.county-tbl thead th[data-ccol]');
+  for(var i=0;i<ths.length;i++){
+    (function(th){
+      th.addEventListener('click', function(){
+        var c = th.getAttribute('data-ccol');
+        if(COUNTY_SORT_COL===c) COUNTY_SORT_DIR *= -1;
+        else { COUNTY_SORT_COL=c; COUNTY_SORT_DIR=-1; }
+        updateCountyTable();
+      });
+    })(ths[i]);
+  }
+}
+
+function initCountyModel(){
+  var ta=document.getElementById('turnoutRaw');
+  if(ta) ta.value = TURNOUT_DEFAULT;
+  parseTurnout();
+  hookCountyTableSort();
+
+  var btn=document.getElementById('parseTurnoutBtn');
+  if(btn) btn.addEventListener('click', function(){ parseTurnout(); });
+
+  var rbtn=document.getElementById('turnoutResetBtn');
+  if(rbtn) rbtn.addEventListener('click', function(){
+    if(ta) ta.value = TURNOUT_DEFAULT;
+    parseTurnout();
+  });
+
+  var s=document.getElementById('countySearch');
+  if(s) s.addEventListener('input', updateCountyTable);
+
+  return loadCountyRace();
+}
+
+var _rafPending=false;
+function refreshAll(){
+  // If electorate is in target mode, keep weights consistent with current turnout.
+  if(ELEC_MODE==='target' && ELEC_TARGET){
+    var solved = solveWeightsToTargets(ELEC_TARGET);
+    if(solved) ELEC_WEIGHTS = {white:solved.white, black:solved.black, hisp:solved.hisp, asian:solved.asian, other:1.0};
+  }
+  computeModel();
+  updateAssumpText();
+  updateCountyTable();
+  updateMarkers();
+  updateElectorateUI(false);
+  computeFinalEstimate();
+  if(typeof render === 'function') render();
+}
+
+function hookSliders(){
+  var sBlack=document.getElementById('slBlack'),
+      sWhite=document.getElementById('slWhite'),
+      sHisp=document.getElementById('slHisp'),
+      sAsian=document.getElementById('slAsian');
+
+  function bind(sl, key, outId){
+    if(!sl) return;
+    var out=document.getElementById(outId);
+    function on(){
+      var v=parseInt(sl.value,10);
+      PREF[key]=v;
+      if(out) out.textContent=v;
+      if(_rafPending) return;
+      _rafPending=true;
+      requestAnimationFrame(function(){ _rafPending=false; refreshAll(); });
+    }
+    sl.addEventListener('input', on);
+    sl.addEventListener('change', on);
+  }
+
+  bind(sBlack,'black','vBlack');
+  bind(sWhite,'white','vWhite');
+  bind(sHisp,'hisp','vHisp');
+  bind(sAsian,'asian','vAsian');
+
+  var reset=document.getElementById('resetRace');
+  if(reset){
+    reset.addEventListener('click', function(){
+      PREF.black=DEFAULT_PREF.black; PREF.white=DEFAULT_PREF.white; PREF.hisp=DEFAULT_PREF.hisp; PREF.asian=DEFAULT_PREF.asian;
+      if(sBlack){sBlack.value=PREF.black; var e=document.getElementById('vBlack'); if(e) e.textContent=PREF.black;}
+      if(sWhite){sWhite.value=PREF.white; var e=document.getElementById('vWhite'); if(e) e.textContent=PREF.white;}
+      if(sHisp){sHisp.value=PREF.hisp; var e=document.getElementById('vHisp'); if(e) e.textContent=PREF.hisp;}
+      if(sAsian){sAsian.value=PREF.asian; var e=document.getElementById('vAsian'); if(e) e.textContent=PREF.asian;}
+      refreshAll();
+    });
+  }
+}
+
+function updateElectorateUI(forceFromAchieved){
+  var ew=document.getElementById('slEWhite'), eb=document.getElementById('slEBlack'), eh=document.getElementById('slEHisp'), ea=document.getElementById('slEAsian');
+  var vw=document.getElementById('vEWhite'), vb=document.getElementById('vEBlack'), vh=document.getElementById('vEHisp'), va=document.getElementById('vEAsian'), vo=document.getElementById('vEOther');
+  if(!ew||!eb||!eh||!ea||!vw||!vb||!vh||!va||!vo) return;
+  var ach = computeStatewideElectorateWithWeights(ELEC_WEIGHTS);
+  if(!ach){
+    // no county data yet
+    vw.textContent=vb.textContent=vh.textContent=va.textContent=vo.textContent='—';
+    return;
+  }
+  // In fixed mode, keep sliders reflecting achieved statewide electorate (derived from weights + turnout)
+  if(ELEC_MODE==='fixed' || forceFromAchieved){
+    ew.value = Math.round(ach.white*100);
+    eb.value = Math.round(ach.black*100);
+    eh.value = Math.round(ach.hisp*100);
+    ea.value = Math.round(ach.asian*100);
+  }
+  var wv=parseInt(ew.value,10)||0, bv=parseInt(eb.value,10)||0, hv=parseInt(eh.value,10)||0, av=parseInt(ea.value,10)||0;
+  var ov = Math.max(0, 100 - (wv+bv+hv+av));
+  vw.textContent=wv; vb.textContent=bv; vh.textContent=hv; va.textContent=av; vo.textContent=ov;
+}
+
+function _applyElectorateTargetsFromSliders(changedId){
+  var ew=document.getElementById('slEWhite'), eb=document.getElementById('slEBlack'), eh=document.getElementById('slEHisp'), ea=document.getElementById('slEAsian');
+  if(!ew||!eb||!eh||!ea) return;
+  var wv=parseInt(ew.value,10)||0, bv=parseInt(eb.value,10)||0, hv=parseInt(eh.value,10)||0, av=parseInt(ea.value,10)||0;
+  var sum = wv+bv+hv+av;
+  if(sum>100){
+    // clamp the slider that moved
+    var over = sum-100;
+    var el = document.getElementById(changedId);
+    if(el){
+      var cur=parseInt(el.value,10)||0;
+      el.value = Math.max(0, cur-over);
+    }
+    wv=parseInt(ew.value,10)||0; bv=parseInt(eb.value,10)||0; hv=parseInt(eh.value,10)||0; av=parseInt(ea.value,10)||0;
+    sum = wv+bv+hv+av;
+  }
+  var ov = Math.max(0, 100-sum);
+  ELEC_TARGET = {white:wv/100, black:bv/100, hisp:hv/100, asian:av/100, other:ov/100};
+  ELEC_MODE = 'target';
+  // Solve weights to match targets using county turnout + Census base shares.
+  var solved = solveWeightsToTargets(ELEC_TARGET);
+  if(solved) ELEC_WEIGHTS = {white:solved.white, black:solved.black, hisp:solved.hisp, asian:solved.asian, other:1.0};
+  updateElectorateUI(false);
+}
+
+function hookElectorateSliders(){
+  var ew=document.getElementById('slEWhite'), eb=document.getElementById('slEBlack'), eh=document.getElementById('slEHisp'), ea=document.getElementById('slEAsian');
+  if(!ew||!eb||!eh||!ea) return;
+  function bind(sl){
+    sl.addEventListener('input', function(){ _applyElectorateTargetsFromSliders(sl.id); if(_rafPending) return; _rafPending=true; requestAnimationFrame(function(){ _rafPending=false; refreshAll(); }); });
+    sl.addEventListener('change', function(){ _applyElectorateTargetsFromSliders(sl.id); refreshAll(); });
+  }
+  bind(ew); bind(eb); bind(eh); bind(ea);
+  var reset=document.getElementById('resetElec');
+  if(reset){
+    reset.addEventListener('click', function(){
+      // Restore the UI defaults (targets) and re-solve weights to match them.
+      if(ew) ew.value = ELEC_DEFAULT_SLIDERS.white;
+      if(eb) eb.value = ELEC_DEFAULT_SLIDERS.black;
+      if(eh) eh.value = ELEC_DEFAULT_SLIDERS.hisp;
+      if(ea) ea.value = ELEC_DEFAULT_SLIDERS.asian;
+      _applyElectorateTargetsFromSliders('slEAsian');
+      refreshAll();
+    });
+  }
+}
+// Ensure DATA matches current assumptions before first render / markers
+computeModel();
+
+
+var COUNTY_CENTERS = {Dallas:[32.78,-96.80,10.3], Harris:[29.76,-95.38,10], Travis:[30.30,-97.75,10.8]};
+
+var map = null;
+var finalMap = null;
+var finalCountyLayer = null;
+
+var markers = {};
+var tagColors = {Dallas:'#6366f1',Harris:'#0891b2',Travis:'#7c3aed'};
+
+try{
+  map = L.map('map',{zoomControl:true,attributionControl:false}).setView([30.5,-96.5],7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'OpenStreetMap, CARTO',maxZoom:18
+  }).addTo(map);
+
+  var maxD = 0;
+  for(var i=0;i<DATA.length;i++){if(DATA[i].dem_total>maxD)maxD=DATA[i].dem_total;}
+
+  for(var i=0;i<DATA.length;i++){
+    var d = DATA[i];
+    var cs = d.crockett_share;
+    var radius = 1 + (d.dem_total/maxD)*6;
+    var m = (cs*2 - 1);
+    var fillColor = _colorByMargin(m);
+    var strokeColor = _darken(fillColor, 0.65);
+    var intensity = Math.abs(m);
+
+    var marker = L.circleMarker([d.lat, d.lon], {
+      radius: radius, fillColor: fillColor, fillOpacity: _opacityByMargin(m),
+      color: strokeColor, weight: 1
+    }).addTo(map);
+
+    var ttHtml = _tooltipHTML(d);
+    marker.bindTooltip(ttHtml, {className:'custom-tooltip',direction:'top',offset:[0,-8]});
+    markers[d.county + ':' + d.name] = {marker: marker, data: d};
+  }
+
+  var leg = L.control({position:'bottomleft'});
+  leg.onAdd = function(){
+    var div = L.DomUtil.create('div','map-legend');
+    div.innerHTML = '<h4>Margin</h4>' +
+      '<div style="width:180px;height:10px;border-radius:3px;border:1px solid #dfe3ea;background:linear-gradient(90deg,#239e76,#f1f5f9,#d4712e);"></div>' +
+      '<div style="display:flex;justify-content:space-between;margin-top:3px;font-size:11px;color:#3b3f45"><span>Talarico +</span><span>Tie</span><span>Crockett +</span></div>' +
+      '<div style="margin-top:8px"><h4>Bubble = Dem votes</h4></div>';
+    return div;
+  };
+  leg.addTo(map);
+
+  // County boundaries under the bubbles
+  loadCountyGeo();
+
+}catch(e){
+  console.error('Map init failed', e);
+  var el=document.getElementById('map');
+  if(el) el.innerHTML = '<div style="padding:12px;color:#666;font-size:12px">Map unavailable (Leaflet blocked/offline).</div>';
+}
+
+
+try{
+  var el2=document.getElementById('mapFinal');
+  if(el2){
+    finalMap = L.map('mapFinal',{zoomControl:true,attributionControl:false}).setView([30.5,-96.5],7);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+      attribution:'OpenStreetMap, CARTO',maxZoom:18
+    }).addTo(finalMap);
+  }
+}catch(e){
+  console.error('Final map init failed', e);
+  var el2=document.getElementById('mapFinal');
+  if(el2) el2.innerHTML = '<div style="padding:12px;color:#666;font-size:12px">Map unavailable (Leaflet blocked/offline).</div>';
+}
+
+
+
+
+
+// ── TABLE ──
+var tb = document.getElementById('tb');
+var sCol = 'margin', sDir = -1, activeRow = null;
+
+function render(){
+  var filter = (document.getElementById('sbox').value || '').toLowerCase();
+  var countyF = document.getElementById('cfilt').value;
+  var rows = [];
+  for(var i=0;i<DATA.length;i++){
+    var d = DATA[i];
+    if(countyF && d.county !== countyF) continue;
+    if(filter && d.name.toLowerCase().indexOf(filter)===-1 && d.county.toLowerCase().indexOf(filter)===-1) continue;
+    rows.push(d);
+  }
+  rows.sort(function(a,b){
+    var v;
+    if(sCol==='county') v = a.county.localeCompare(b.county);
+    else if(sCol==='name') v = a.name.localeCompare(b.name);
+    else if(sCol==='crockett') v = a.crockett_votes - b.crockett_votes;
+    else if(sCol==='talarico') v = a.talarico_votes - b.talarico_votes;
+    else if(sCol==='margin') v = (a.crockett_votes-a.talarico_votes) - (b.crockett_votes-b.talarico_votes);
+    else if(sCol==='bar') v = a.crockett_share - b.crockett_share;
+    else v = 0;
+    return sDir * v;
+  });
+
+  var html = '';
+  for(var i=0;i<rows.length;i++){
+    var d = rows[i];
+    var lead = d.crockett_votes - d.talarico_votes;
+    var lStr = lead >= 0
+      ? '<span class="lead" style="color:#c45a20">C+' + lead + '</span>'
+      : '<span class="lead" style="color:#1a7a5c">T+' + Math.abs(lead) + '</span>';
+    var abbr = d.county.charAt(0);
+    html += '<tr data-k="' + d.county + ':' + d.name + '">' +
+      '<td><span class="county-tag tag-' + d.county + '">' + abbr + '</span></td>' +
+      '<td class="loc-name" title="' + d.name + '">' + d.name + '</td>' +
+      '<td class="num c-num">' + d.crockett_votes.toLocaleString() + '</td>' +
+      '<td class="num t-num">' + d.talarico_votes.toLocaleString() + '</td>' +
+      '<td>' + lStr + '</td>' +
+      '<td class="mini-bar"><div class="mb-wrap"><div class="mb-c" style="width:' + (d.crockett_share*100) + '%"></div><div class="mb-t" style="width:' + (d.talarico_share*100) + '%"></div></div></td>' +
+      '</tr>';
+  }
+  tb.innerHTML = html;
+
+  var trs = tb.querySelectorAll('tr');
+  for(var j=0;j<trs.length;j++){
+    (function(tr){
+      tr.addEventListener('click', function(){
+        var k = tr.getAttribute('data-k');
+        var m = markers[k];
+        if(m){
+          if(map && map.flyTo) map.flyTo([m.data.lat, m.data.lon], 14, {duration: 1});
+          m.marker.openTooltip();
+          if(activeRow) activeRow.classList.remove('active');
+          tr.classList.add('active');
+          activeRow = tr;
+        }
+      });
+    })(trs[j]);
+  }
+}
+
+var ths = document.querySelectorAll('thead th');
+for(var i=0;i<ths.length;i++){
+  (function(th){
+    th.addEventListener('click', function(){
+      var c = th.getAttribute('data-col');
+      if(sCol===c) sDir *= -1; else { sCol = c; sDir = -1; }
+      for(var k=0;k<ths.length;k++) ths[k].className = '';
+      th.className = sDir===1 ? 'sa' : 'sd';
+      render();
+    });
+  })(ths[i]);
+}
+document.getElementById('sbox').addEventListener('input', render);
+document.getElementById('cfilt').addEventListener('change', function(){
+  var v = this.value;
+  if(v && COUNTY_CENTERS[v]){
+    if(map && map.flyTo) map.flyTo([COUNTY_CENTERS[v][0],COUNTY_CENTERS[v][1]], COUNTY_CENTERS[v][2], {duration:1});
+  } else {
+    if(map && map.flyTo) map.flyTo([30.5,-96.5], 7, {duration:1});
+  }
+  render();
+});
+hookSliders();
+hookElectorateSliders();
+hookFinalEstimateControls();
+initCountyModel().then(function(){ _applyElectorateTargetsFromSliders('slEAsian'); refreshAll(); }).catch(function(){ refreshAll(); });
+document.querySelector('th[data-col="margin"]').className = 'sd';
+</script>
+</body>
+</html>
